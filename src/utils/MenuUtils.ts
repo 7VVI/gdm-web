@@ -42,7 +42,7 @@ const menu=()=> {
                     parentMenuItem.children = [menuItem];
                 }
             } else if (menuItem) {
-                menuItem.path="/home"+menuItem.path
+                menuItem.path="/main"+menuItem.path
                 rootMenuItems.push(menuItem);
             }
         });
