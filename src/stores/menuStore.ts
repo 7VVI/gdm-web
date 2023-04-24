@@ -1,11 +1,12 @@
 import {defineStore} from 'pinia'
 import type {RouteRecordRaw} from "vue-router";
-
+import {HttpManager} from "@/api/system";
+import menu from "@/utils/MenuUtils"
 
 export const menuStore = defineStore('sideMenu', {
     state: () => {
         return {
-            menu:Object,
+            menu: new Array<API.MenuItem>(),
             routes: [] as Array<RouteRecordRaw>,
         }
     },
@@ -25,6 +26,15 @@ export const menuStore = defineStore('sideMenu', {
     },
     actions: {
         async getMenu() {
+            let menuInfo=await  HttpManager.getMenu();
+            console.log(menuInfo.data)
+            const{processMenuItems}=menu()
+            if (menuInfo?.code === 200 && menuInfo.data) {
+                // console.log(JSON.stringify(menu))
+                this.menu = processMenuItems(menuInfo.data);
+            } else {
+                console.log("获取菜单信息失败")
+            }
         }
     }
 })

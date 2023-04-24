@@ -36,7 +36,7 @@
       <a-layout-content
           :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }"
       >
-        Content
+        <RouterView />
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -46,11 +46,20 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
 } from '@ant-design/icons-vue';
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import Logo from "@/layout/Logo.vue";
+import menu from "@/utils/MenuUtils"
+import {menuStore} from "@/stores/menuStore";
 
+let store=menuStore();
+let Menus=ref();
 let selectedKeys = ref<string[]>(['1']);
 let collapsed = ref<boolean>(false);
+
+onMounted(()=>{
+  Menus.value= store.menu
+  // console.log(Menus)
+})
 
 </script>
 <style lang="less" scoped>

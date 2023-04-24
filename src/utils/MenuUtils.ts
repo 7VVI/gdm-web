@@ -14,15 +14,12 @@ const menu=()=> {
                 pid: item.pid,
                 path: item.path,
                 name: item.name,
-                menuOrder: item.menuOrder,
-                subCount: item.subCount,
+                component:item.component,
                 title: item.title,
-                component: item.component,
                 icon: item.icon,
                 iconColor: item.iconColor,
                 meta: {
                     hidden: item.hidden,
-                    type: item.type
                 },
             };
             menuMap.set(item.menuId, menuItem);
@@ -42,7 +39,7 @@ const menu=()=> {
                     parentMenuItem.children = [menuItem];
                 }
             } else if (menuItem) {
-                menuItem.path="/main"+menuItem.path
+                menuItem.path="/layout"+menuItem.path
                 rootMenuItems.push(menuItem);
             }
         });
@@ -62,7 +59,7 @@ const menu=()=> {
                 path: menuItem.path,
                 name: menuItem.title,
                 meta: menuItem.meta,
-                component: modules[`/src/views/${menuItem.name}.vue`],
+                component: modules[`/src/views/${menuItem.name}/${menuItem.component}.vue`],
             };
             if (menuItem.children && menuItem.children.length > 0) {
                 const children = generateRoutes(menuItem.children);
@@ -71,7 +68,6 @@ const menu=()=> {
                     route.children = children;
                 }
             }
-
             routes.push(route);
         });
 

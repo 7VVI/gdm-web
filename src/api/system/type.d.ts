@@ -10,6 +10,11 @@ declare namespace API {
         description: string;
     };
 
+    interface VerificationCode{
+        imgBase64:string;
+        uuid:string
+    }
+
 
     /**
      * 后端菜单类型
@@ -17,22 +22,16 @@ declare namespace API {
     interface Menu {
         //菜单唯一id
         menuId: number,
-        //菜单顺序
-        menuOrder: number,
-        //子菜单数目
-        subCount: number,
-        //菜单类型 0无子菜单  1有子菜单
-        type: number,
         //菜单标题
         title: string,
         //上级菜单ID
         pid: number,
         //路由
         path: string,
-        //组件
-        component: string,
         //组件名称
         name: string,
+        //组件
+        component:string;
         // 菜单图标
         icon?: string;
         // 图标颜色
@@ -59,15 +58,12 @@ declare namespace API {
         pid: number;
         path: string;
         name: string;
-        menuOrder: number;
-        subCount: number;
+        component:string;
         title: string;
-        component: string;
         icon?: string;
         iconColor?: string;
         meta?: {
             hidden: boolean | null;
-            type: number;
         };
         children?: MenuItem[]
     }
@@ -81,7 +77,6 @@ declare namespace API {
         component: any;
         meta?: {
             hidden: boolean | null;
-            type: number;
         };
         children?: Router[]
     }
