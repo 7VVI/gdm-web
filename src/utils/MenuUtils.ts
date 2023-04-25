@@ -57,7 +57,7 @@ const menu=()=> {
 
             const route: RouteRecordRaw = {
                 path: menuItem.path,
-                name: menuItem.title,
+                name: menuItem.component,
                 meta: menuItem.meta,
                 component: modules[`/src/views/${menuItem.name}/${menuItem.component}.vue`],
             };

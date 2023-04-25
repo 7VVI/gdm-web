@@ -1,16 +1,22 @@
 <template>
-    主页
+  <Spin :tip="tip" :spinning="spinning">
+    <p class="spin-content"></p>
+  </Spin>
+
 </template>
 
 <script setup lang="ts">
+let tip = '加载中...';
+let spinning = true
 
 </script>
 
-<style scoped>
-body,html {
+<style lang="less" scoped>
+body, html {
   margin: 0;
   padding: 0;
 
 
 }
+
 </style>

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4036647 */
-  src: url('iconfont.woff2?t=1682340227506') format('woff2'),
-       url('iconfont.woff?t=1682340227506') format('woff'),
-       url('iconfont.ttf?t=1682340227506') format('truetype');
+  src: url('iconfont.woff2?t=1682429553704') format('woff2'),
+       url('iconfont.woff?t=1682429553704') format('woff'),
+       url('iconfont.ttf?t=1682429553704') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,54 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-liucheng:before {
+  content: "\e658";
+}
+
+.icon-liucheng1:before {
+  content: "\e60c";
+}
+
+.icon-xueshengkaohe:before {
+  content: "\e62d";
+}
+
+.icon-navicon-qgsq:before {
+  content: "\e650";
+}
+
+.icon-fabu:before {
+  content: "\e711";
+}
+
+.icon-wodexuesheng:before {
+  content: "\e67d";
+}
+
+.icon-gonggao:before {
+  content: "\e613";
+}
+
+.icon-shenqing:before {
+  content: "\e60a";
+}
+
+.icon-shenqing1:before {
+  content: "\e636";
+}
+
+.icon-liuchengguanli:before {
+  content: "\e6d4";
+}
+
+.icon-jurassic_process:before {
+  content: "\e6c4";
+}
+
+.icon-icon_xueshengzonghebaobiao:before {
+  content: "\e61e";
 }
 
 .icon-shuben:before {

@@ -30,8 +30,8 @@ export const menuStore = defineStore('sideMenu', {
             console.log(menuInfo.data)
             const{processMenuItems}=menu()
             if (menuInfo?.code === 200 && menuInfo.data) {
-                // console.log(JSON.stringify(menu))
                 this.menu = processMenuItems(menuInfo.data);
+                console.log("store",this.menu)
             } else {
                 console.log("获取菜单信息失败")
             }
