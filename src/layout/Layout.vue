@@ -34,7 +34,7 @@
         />
       </a-layout-header>
       <a-layout-content
-          :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }"
+          :style="{ margin: '16px',background: '#f0f2f5', minHeight: '280px', }"
       >
         <RouterView />
       </a-layout-content>
@@ -48,7 +48,6 @@ import {
 } from '@ant-design/icons-vue';
 import {onMounted, ref} from 'vue';
 import Logo from "@/layout/Logo.vue";
-import menu from "@/utils/MenuUtils"
 import {menuStore} from "@/stores/menuStore";
 
 let store=menuStore();

@@ -27,11 +27,11 @@ export const menuStore = defineStore('sideMenu', {
     actions: {
         async getMenu() {
             let menuInfo=await  HttpManager.getMenu();
-            console.log(menuInfo.data)
+            // console.log(menuInfo.data)
             const{processMenuItems}=menu()
             if (menuInfo?.code === 200 && menuInfo.data) {
                 this.menu = processMenuItems(menuInfo.data);
-                console.log("store",this.menu)
+                // console.log("store",this.menu)
             } else {
                 console.log("获取菜单信息失败")
             }

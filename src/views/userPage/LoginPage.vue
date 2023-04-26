@@ -24,7 +24,7 @@ const formState = reactive<FormState>({
 });
 const onFinish = (values: any) => {
   console.log('Success:', values);
-  route.push({ path: "/layout", replace: true });
+  route.push({ path: "/layout/main", replace: true });
 };
 
 const onFinishFailed = (errorInfo: any) => {

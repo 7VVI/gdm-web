@@ -29,7 +29,11 @@ const router = createRouter({
             path: '/404',
             name: "404",
             component: () => import("@/views/features/404.vue")
-        }
+        },
+        // {
+        //     path: "/:catchAll(.*)",
+        //     redirect: "/404",
+        // }
     ]
 })
 
@@ -44,7 +48,7 @@ router.beforeEach(async (to, from, next) => {
             if (flag) {
                 const{generateRoutes}=menu()
                 let rt = generateRoutes(store.menu)
-                console.log(rt)
+                // console.log(rt)
                 await rt.forEach(item => {
                     router.addRoute("Layout", item)
                 });
