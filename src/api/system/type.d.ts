@@ -15,6 +15,15 @@ declare namespace API {
         uuid:string
     }
 
+    /**
+     * 后端权限类型
+     */
+    type Permissions={
+        value:number;
+        name:string;
+    }
+
+
 
     /**
      * 后端菜单类型

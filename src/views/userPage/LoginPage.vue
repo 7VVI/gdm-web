@@ -39,8 +39,7 @@ onMounted(async ()=>{
   imageUrl.value="data:image/png;base64,"+verifyCode.data.imgBase64;
   verifyCodeUuid.value=verifyCode.data.uuid;
   // console.log(verifyCode.data)
-  store.getMenu();
-
+  await store.getMenu();
 })
 </script>
 

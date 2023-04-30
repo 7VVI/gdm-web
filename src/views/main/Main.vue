@@ -157,7 +157,7 @@ body, html {
       align-content: space-between;
       justify-content: space-around;
       flex-wrap: wrap;
-      height: 20%;
+      height: 25%;
 
       .header_left {
         background-color:#f0f2f5;
@@ -218,7 +218,7 @@ body, html {
 
         .ip-card {
           box-shadow: 0 0 6px #0003;
-          border: 1px solid var(--el-border-color-light);
+          border: 1px solid @--el-border-color-light;
           border-radius: 5px;
           margin: 0 0 0 10px;
           background-color: rgba(209, 241, 112, 0.3);

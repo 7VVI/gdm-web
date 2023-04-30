@@ -19,17 +19,51 @@ const HttpManager = {
     /**
      * 获取菜单信息
      */
-    getMenu(): Promise<BaseResponse<any>> {
-        return request({
-            url: "/menuManage/listAll",
-            method: "get"
+    getMenu(data: any) {
+        return request<BaseResponse<any>>({
+            url: "/menuManage/pageList",
+            method: "post",
+            data
+        })
+    },
+
+    /**
+     * 获取后端角色信息
+     */
+    getPermissions(){
+        return request<BaseResponse<Permissions>>({
+            url: "/user/getPermissions",
+            method: "get",
+        })
+    },
+
+    /**
+     * 新增菜单
+     */
+    addMenu(data:any){
+        return request<BaseResponse<any>>({
+            url: "/menuManage/add",
+            method: "post",
+            data
+        })
+    },
+
+    /**
+     * 菜单删除
+     * @param ids
+     */
+    deleteMenu(ids:string){
+        return request<BaseResponse<any>>({
+            url: "/menuManage/delete",
+            method: "get",
+            params:{ids},
         })
     },
 
     /**
      * 验证码获取
      */
-    getVerifyCoe():Promise<BaseResponse<API.VerificationCode>>{
+    getVerifyCoe(): Promise<BaseResponse<API.VerificationCode>> {
         return request({
             url: "user/imgVerifyCode",
             method: "get"
@@ -39,9 +73,9 @@ const HttpManager = {
     /**
      * 获取文件流
      */
-    getFileContent(){
+    getFileContent() {
         return request({
-            url:"/file",
+            url: "/file",
             responseType: 'blob' // 指定响应类型为二进制数据
         })
     }
