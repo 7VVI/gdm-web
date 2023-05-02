@@ -56,7 +56,7 @@ const HttpManager = {
         return request<BaseResponse<any>>({
             url: "/menuManage/delete",
             method: "get",
-            params:{ids},
+            params:ids,
         })
     },
 
@@ -69,16 +69,6 @@ const HttpManager = {
             method: "get"
         })
     },
-
-    /**
-     * 获取文件流
-     */
-    getFileContent() {
-        return request({
-            url: "/file",
-            responseType: 'blob' // 指定响应类型为二进制数据
-        })
-    }
 
 }
 

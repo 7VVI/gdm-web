@@ -157,6 +157,7 @@
           :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
           :columns="columns"
           :data-source="data"
+          :loading="loading"
       >
         <template #bodyCell="{ column }">
           <template v-if="column.key === 'operation'">
@@ -170,6 +171,7 @@
 
 <script setup lang="ts">
 import {ref, computed, reactive, toRefs, onBeforeMount} from 'vue';
+
 
 const expand = ref(false);
 const formRef = ref<FormInstance>();
@@ -277,14 +279,19 @@ const columns = [
   },
 ];
 
+let loading=ref(false)
 let data = ref<DataType[]>();
 let permissions = ref()
 
 onBeforeMount(async () => {
+  loading.value=true;
   //获取分页菜单
   let response = await HttpManager.getMenu({});
   data.value = response.data.data;
-
+  data.value?.forEach(e=>{
+      e.key=e.menuId;
+  })
+  loading.value=false;
 })
 
 const confirm =async (e: MouseEvent) => {
@@ -330,7 +337,6 @@ const hasSelected = computed(() => state.selectedRowKeys.length > 0);
 const onSelectChange = (selectedRowKeys: Key[]) => {
   console.log('selectedRowKeys changed: ', selectedRowKeys);
   state.selectedRowKeys = selectedRowKeys;
-
 };
 let { selectedRowKeys} = toRefs(state)
 
