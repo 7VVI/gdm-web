@@ -5,7 +5,13 @@ import {defaultSettings} from "@/constants";
 import { useRouter } from "vue-router";
 import {HttpManager} from "@/api/system";
 import {menuStore} from "@/stores/menuStore";
-
+import Swal from "sweetalert2";
+import {message} from "ant-design-vue";
+const todoDom = ref<any>(null);
+message.config({
+  maxCount: 1,
+  getContainer:() => todoDom.value || document.body //父组件元素ID 找不到时 挂载到body上
+})
 let imageUrl=ref();
 let verifyCodeUuid=ref();
 let store=menuStore();
@@ -15,16 +21,29 @@ interface FormState {
   username: string;
   password: string;
   remember: boolean;
+  randomKey:string;
+  verifyCode:string;
 }
 
 const formState = reactive<FormState>({
   username: '',
   password: '',
   remember: true,
+  randomKey:'',
+  verifyCode:'',
 });
-const onFinish = (values: any) => {
+
+const onFinish =async (values: any) => {
   console.log('Success:', values);
-  route.push({ path: "/layout/main", replace: true });
+  values.randomKey=verifyCodeUuid.value
+  let res= await HttpManager.login(values)
+  if(res.code==200){
+   message.success("登录成功")
+    await route.push({path: "/layout/main", replace: true});
+  }else{
+    message.error("登录失败！验证码或密码错误")
+    await route.push({path: "/login", replace: true});
+  }
 };
 
 const onFinishFailed = (errorInfo: any) => {
@@ -44,7 +63,7 @@ onMounted(async ()=>{
 </script>
 
 <template>
-  <div class="content">
+  <div class="content" ref="todoDom">
     <div class="project-name">{{defaultSettings.APP_NAME}}</div>
     <div class="login-form">
       <a-form
@@ -154,10 +173,6 @@ body, html {
       font-family: "Noto Serif SC", serif;
       color: #fbc2eb;
     }
-  }
-
-  .veriyfyCode{
-
   }
 
   .verifyCode {

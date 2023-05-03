@@ -9,8 +9,8 @@
           @finish="onFinish"
       >
         <a-row :gutter="24">
-          <template v-for="i in 2" :key="i">
-            <a-col v-show="expand || i <=2" :span="8">
+          <template v-for="i in 1" :key="i">
+            <a-col v-show="expand || i <=1" :span="8">
               <a-form-item
                   :name="searchField[i].field"
                   :label="searchField[i].title"
@@ -31,14 +31,25 @@
     </div>
     <div class="--middle-table">
       <a-table
-          :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
           :columns="columns"
           :data-source="data"
+          :loading="loading"
       >
-        <template #bodyCell="{ column }">
-          <template v-if="column.key === 'operation'">
-            <a>修改</a>
-          </template>
+        <template #name="{ record }">
+          <a-button type="primary"   @click="showModal()">审核</a-button>
+          <a-modal v-model:visible="visible" title="题目审核" @ok="handleOk(record)">
+            <a-form :label-col="formItemLayout.labelCol" :wrapper-col="formItemLayout.wrapperCol">
+              <a-form-item label="审核">
+                <a-radio-group v-model:value="modelRef.agree">
+                  <a-radio value="1">同意</a-radio>
+                  <a-radio value="0">不同意</a-radio>
+                </a-radio-group>
+              </a-form-item>
+              <a-form-item label="审核意见" required>
+                <a-textarea v-model:value="modelRef.noAnswerOpinion" placeholder="请输入审核意见"/>
+              </a-form-item>
+            </a-form>
+          </a-modal>
         </template>
       </a-table>
     </div>
@@ -47,56 +58,147 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive} from "vue";
+import {ref, reactive, onMounted} from "vue";
 import type {FormInstance} from "ant-design-vue";
 
 const expand = ref(false);
 const formRef = ref<FormInstance>();
 const formState = reactive({
-  title: null,
-  content: null
+  title: null
 });
-import {DownOutlined, UpOutlined} from '@ant-design/icons-vue';
 
+import {noAnswerAdd, noAnswerListAll} from "@/api/project";
+import {getMajor, getStudentType} from "@/api/topic.selection";
+let loading=ref(false)
 
-const onFinish = (values: any) => {
-  console.log('Received values of form: ', values);
-  console.log('formState: ', formState);
+let data=ref<API.NoAnswer>()
+
+const onFinish =async (values: any) => {
+  loading.value=true
+  let response=await noAnswerListAll(formState)
+  data.value=response.data
+  let responseMajor = await getMajor();
+  majorInfo = responseMajor.data
+  let studentTypeResponse = await getStudentType();
+  studentTypeInfo = studentTypeResponse.data
+  data.value?.forEach(e=>{
+    e.studentType = getNameByCode(e.studentType, studentTypeInfo)
+    e.major = getNameByCode(e.major, majorInfo)
+  })
+  loading.value=false
 };
+
+let modelRef = reactive({
+  noAnswerOpinion: '',
+  agree: undefined,
+  id:null,
+  topicId:null
+});
+
+//审核对话框
+const visible = ref<boolean>(false);
+const showModal = () => {
+  visible.value = true;
+};
+
+const handleOk =async (record:any) => {
+  loading.value=true
+  visible.value = false;
+  modelRef.id=record.id
+  modelRef.topicId=record.topicId
+  await noAnswerAdd(modelRef);
+  let response=await noAnswerListAll({})
+  data.value=response.data
+  let responseMajor = await getMajor();
+  majorInfo = responseMajor.data
+  let studentTypeResponse = await getStudentType();
+  studentTypeInfo = studentTypeResponse.data
+  data.value?.forEach(e=>{
+    e.studentType = getNameByCode(e.studentType, studentTypeInfo)
+    e.major = getNameByCode(e.major, majorInfo)
+  })
+  loading.value=false
+};
+
+const formItemLayout = {
+  labelCol: {span: 6},
+  wrapperCol: {span: 14},
+};
+
 const searchField = [
   {
     field: "",
     title: ""
   },
   {
-    field: "name",
-    title: "标题"
-  },
-  {
-    field: "content",
-    title: "内容"
+    field: "title",
+    title: "毕设题目"
   }
 ]
 
 const columns = [
   {
-    title: '标题',
+    title: '学生',
+    dataIndex: 'studentName',
+  },
+  {
+    title: '毕设题目',
     dataIndex: 'title',
   },
   {
-    title: '内容',
-    dataIndex: 'content',
+    title: '开始时间',
+    dataIndex: 'startTime',
   },
   {
-    title: '创建时间',
-    dataIndex: 'create_time',
+    title: '结束时间',
+    dataIndex: 'endDate',
   },
   {
-    key: "创建人",
-    title: '操作',
-    dataIndex: 'user',
+    title: '研究方向',
+    dataIndex: 'direction',
   },
+  {
+    title: '专业',
+    dataIndex: 'major',
+  },
+  {
+    title: '学生类型',
+    dataIndex: 'studentType',
+  },
+  {
+    title: '指导老师',
+    dataIndex: 'teacherName',
+  },
+  {
+    title: "操作",
+    key: "操作",
+    dataIndex: "key",
+    align: "center",
+    slots: {customRender: "name"},//绑定插槽
+  }
 ];
+
+let majorInfo = reactive({})
+let studentTypeInfo = reactive({})
+onMounted(async ()=>{
+  loading.value=true
+  let response=await noAnswerListAll({})
+  data.value=response.data
+  let responseMajor = await getMajor();
+  majorInfo = responseMajor.data
+  let studentTypeResponse = await getStudentType();
+  studentTypeInfo = studentTypeResponse.data
+  data.value?.forEach(e=>{
+    e.studentType = getNameByCode(e.studentType, studentTypeInfo)
+    e.major = getNameByCode(e.major, majorInfo)
+  })
+  loading.value=false
+})
+
+function getNameByCode(code: string, data: { code: string, name: string }[]): string | undefined {
+  const obj = data.find(item => item.code == code);
+  return obj && obj.name;
+}
 </script>
 
 <style lang="less" scoped>

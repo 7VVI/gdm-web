@@ -23,3 +23,19 @@ export function projectAdd(data:any) {
         data
     });
 }
+
+export function noAnswerListAll(data:any) {
+    return request<API.BaseResponse<any>>({
+        url: '/projectManage/noAnswerListAll',
+        method: 'post',
+        data
+    });
+}
+
+export function noAnswerAdd(data:any) {
+    return request<API.BaseResponse<any>>({
+        url: '/projectManage/noAnswerAdd',
+        method: 'post',
+        data
+    });
+}

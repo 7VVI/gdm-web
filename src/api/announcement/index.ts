@@ -33,3 +33,11 @@ export function announcementDelete(ids:string) {
         params:{ids}
     });
 }
+
+
+export function announcementNow() {
+    return request<API.BaseResponse<any>>({
+        url: '/announcementManage/one',
+        method: 'get',
+    });
+}

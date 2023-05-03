@@ -1,7 +1,7 @@
 declare namespace API {
     /** 登录参数 */
     type LoginParams = {
-        captchaId: string;
+        randomKey: string;
         password: string;
         username: string;
         verifyCode: string;

@@ -26,5 +26,17 @@ declare namespace API {
         teacherName: string
     }
 
-    type
+    type NoAnswer={
+        key:number;
+        id: number;
+        title: string;
+        status: number;
+        startDate: string;
+        endDate: string;
+        studentName: string;
+        teacherName: string;
+        direction: string;
+        major:number;
+        studentType: number
+    }[]
 }

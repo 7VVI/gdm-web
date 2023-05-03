@@ -193,8 +193,6 @@ import Swal from 'sweetalert2';
 let store = menuStore();
 
 const onFinish =async (values: any) => {
-  console.log('Received values of form: ', values);
-  console.log('formState: ', formState);
   let response = await HttpManager.getMenu(formState);
   data.value = response.data.data;
 };

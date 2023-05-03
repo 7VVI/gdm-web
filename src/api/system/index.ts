@@ -8,9 +8,9 @@ const HttpManager = {
      * 用户登录
      * @param body
      */
-    login(body: LoginParams): Promise<BaseResponse<Record<string, string>>> {
-        return request({
-            url: "/admin/login",
+    login(body: LoginParams){
+        return request<BaseResponse<any>>({
+            url: "/user/baseLogin",
             data: body,
             method: "post"
         })

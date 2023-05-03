@@ -1,37 +1,7 @@
 <template>
   <div class="content">
-    <div class="-header-search">
-      <a-form
-          ref="formRef"
-          name="advanced_search"
-          class="ant-advanced-search-form"
-          :model="formState"
-          @finish="onFinish"
-      >
-        <a-row :gutter="24">
-          <template v-for="i in 2" :key="i">
-            <a-col v-show="expand || i <=2" :span="8">
-              <a-form-item
-                  :name="searchField[i].field"
-                  :label="searchField[i].title"
-                  :rules="[{ required: false, message: '请输入内容' }]"
-              >
-                <a-input v-model:value="formState[searchField[i].field]" placeholder="请输入内容"></a-input>
-              </a-form-item>
-            </a-col>
-          </template>
-        </a-row>
-        <a-row>
-          <a-col :span="24" style="text-align: right">
-            <a-button type="primary" html-type="submit">查询</a-button>
-            <a-button style="margin: 0 8px" @click="() => formRef.resetFields()">清空</a-button>
-          </a-col>
-        </a-row>
-      </a-form>
-    </div>
     <div class="--middle-table">
       <a-table
-          :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
           :columns="columns"
           :data-source="data"
       >
@@ -80,7 +50,7 @@ const searchField = [
 
 const columns = [
   {
-    title: '标题',
+    title: 'dddd',
     dataIndex: 'title',
   },
   {

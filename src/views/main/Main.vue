@@ -57,9 +57,7 @@
             <div class="card-container">
               <a-tabs v-model:activeKey="activeKey" type="card">
                 <a-tab-pane key="1" tab="当前公告">
-                  <p>Content of Tab Pane 1</p>
-                  <p>Content of Tab Pane 1</p>
-                  <p>Content of Tab Pane 1</p>
+                  <p>{{announcementN}}</p>
                 </a-tab-pane>
                 <a-tab-pane key="2" tab="历史公告">
                   <List :items="items" />
@@ -91,8 +89,13 @@ onBeforeMount(() => {
   spinning.value = true;
 })
 
-onMounted(() => {
+let announcementN=ref()
+onMounted(async () => {
   spinning.value = false;
+let res=await  announcementNow()
+  announcementN.value=res.data.content
+ let resAnnouncement= await getAnnouncement({})
+  items.value=resAnnouncement.data
 })
 
 const value = ref<Dayjs>();
@@ -100,15 +103,11 @@ const onPanelChange = (value: Dayjs, mode: string) => {
   console.log(value, mode);
 };
 
-const  items=  Array.from({ length: 10 }, (v, i) => ({
-  id: i + 1,
-  title: `示例标题${i + 1}`,
-  time: `2021-10-${i + 1} 10:00:00`,
-  link: `https://example.com/${i + 1}.html`
-}))
-
+const  items=  ref()
 
 import img from "@/assets/img/百度.svg";
+import {notification} from "ant-design-vue";
+import {announcementNow, getAnnouncement} from "@/api/announcement";
 let quickAccessItems= [
   {
     name: 'Bai du',
@@ -281,7 +280,7 @@ body, html {
       align-content: space-between;
       justify-content: space-around;
       flex-wrap: wrap;
-      height: 70%;
+      height: 60%;
       //background-color:@--ant-div-background-color;
       box-sizing: border-box;
 

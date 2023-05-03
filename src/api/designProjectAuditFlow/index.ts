@@ -39,3 +39,10 @@ export function schoolAudit(data:any) {
         data
     });
 }
+
+export function designProjectAuditFlowPercent() {
+    return request<API.BaseResponse<any>>({
+        url: '/designManage/percent',
+        method: 'get',
+    });
+}
