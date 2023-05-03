@@ -18,7 +18,7 @@ declare namespace API {
         operIp: string;
         operTime: string;
         exceptionDetail?: string;
-    }
+    }[]
 
     type LogQueryParam = {
         "level"?:number;

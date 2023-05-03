@@ -77,7 +77,6 @@
           :loading="loading"
       >
         <template #name="{ record }">
-          <!--          <a-button type="primary" ghost @click="hide(record)">选择题目</a-button>-->
           <a-popconfirm
               title="是否确认选择?"
               ok-text="确认"
@@ -118,12 +117,22 @@ const confirm = async (record: any) => {
   let response = await projectAdd({
     topicId,
     startDate,
-    endDate,
-    id:record.id
+    endDate
   })
   if(response.data==1){
     console.log("添加陈工")
   }
+  let responseProject = await projectListAll({});
+  data.value = responseProject.data
+  let responseMajor = await getMajor();
+  majorInfo = responseMajor.data
+  let studentTypeResponse = await getStudentType();
+  studentTypeInfo = studentTypeResponse.data
+  data.value?.forEach(project => {
+    project.studentType = getNameByCode(project.studentType, studentTypeInfo)
+    project.major = getNameByCode(project.major, majorInfo)
+    project.key = project.id
+  })
 };
 
 const cancel = (e: MouseEvent) => {
@@ -228,16 +237,6 @@ const state = reactive<{
   selectedRowKeys: [], // Check here to configure the default column
   loading: false,
 });
-const hasSelected = computed(() => state.selectedRowKeys.length > 0);
-
-const onSelect = (record: any) => {
-  console.log(record)
-}
-const onSelectChange = (selectedRowKeys: Key[]) => {
-  console.log('selectedRowKeys changed: ', selectedRowKeys);
-  state.selectedRowKeys = selectedRowKeys;
-};
-let {selectedRowKeys} = toRefs(state)
 </script>
 
 <style lang="less" scoped>

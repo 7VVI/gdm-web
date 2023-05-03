@@ -88,7 +88,6 @@
                 <template v-for="item in majorInfo" :key="item.code">
                   <a-select-option :value="item.code">{{ item.name }}</a-select-option>
                 </template>
-
               </a-select>
             </a-form-item>
             <a-form-item label="学生类型" required>
@@ -106,10 +105,6 @@
                 <a-input-number v-model:value="modelRef.studentNum" :min="1" :max="10"/>
               </a-form-item>
             </a-form-item>
-            <!--            <a-form-item class="error-infos" :wrapper-col="{ span: 14, offset: 4 }" v-bind="errorInfos">-->
-            <!--              <a-button type="primary" @click.prevent="onSubmit">Create</a-button>-->
-            <!--              <a-button style="margin-left: 10px" @click="resetFields">Reset</a-button>-->
-            <!--            </a-form-item>-->
           </a-form>
         </a-modal>
       </div>
@@ -196,8 +191,6 @@ const formItemLayout = {
 
 
 const onFinish =async (values: any) => {
-  console.log('Received values of form: ', values);
-  console.log('formState: ', formState);
  let topicSelectionResponse=await topicSelectionListAll(formState);
   data.value = topicSelectionResponse.data
   data.value?.forEach(e => {
@@ -210,6 +203,8 @@ const onFinish =async (values: any) => {
       e.state="系已审核"
     }else if(e.state==2){
       e.state="院已审核"
+    }else if(e.state==3){
+      e.state="已被选题"
     }
   })
 };
@@ -276,6 +271,10 @@ const columns = [
     dataIndex: 'state',
   },
   {
+    title: '审核结果',
+    dataIndex: 'result',
+  },
+  {
     title: '操作',
     dataIndex: 'operation',
     key: "operation"
@@ -305,6 +304,8 @@ const handleOk = async (e: MouseEvent) => {
       e.state="系已审核"
     }else if(e.state==2){
       e.state="院已审核"
+    }else if(e.state==3){
+      e.state="已被选题"
     }
   })
   // message.success("添加成功")
@@ -358,6 +359,7 @@ interface DataType {
   studentType: string;
   studentNum: number;
   state:string;
+  result:string;
 }
 
 let loading = ref(false)
@@ -382,6 +384,8 @@ onMounted(async () => {
       e.state="系已审核"
     }else if(e.state=="2"){
       e.state="院已审核"
+    }else if(e.state==3){
+      e.state="已被选题"
     }
   })
   loading.value = false;

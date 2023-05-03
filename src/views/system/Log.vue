@@ -13,11 +13,11 @@
             <template v-for="i in 4" :key="i">
               <a-col v-show="expand || i <=3" :span="8">
                 <a-form-item
-                    :name="inputField[i]"
-                    :label="inputField[i]"
+                    :name="searchField[i].field"
+                    :label="searchField[i].title"
                     :rules="[{ required: false, message: '请输入内容' }]"
                 >
-                  <a-input v-model:value="formState[inputField[i]]" placeholder="请输入内容"></a-input>
+                  <a-input v-model:value="formState[searchField[i].field]" placeholder="请输入内容"></a-input>
                 </a-form-item>
               </a-col>
             </template>
@@ -45,11 +45,7 @@
     <div class="-middle-log">
       <a-table
           :columns="columns"
-          :row-key="record => record.login.uuid"
-          :data-source="dataSource"
-          :pagination="pagination"
-          :loading="loading"
-          @change="handleTableChange"
+          :data-source="data"
       >
         <template #bodyCell="{ column, text }">
           <template v-if="column.dataIndex === 'name'">{{ text.first }} {{ text.last }}</template>
@@ -64,7 +60,9 @@ import {ref, reactive, onMounted} from "vue";
 import type {FormInstance} from "ant-design-vue";
 const expand = ref(false);
 const formRef = ref<FormInstance>();
-const formState = reactive({});
+const formState = reactive({
+
+});
 import { DownOutlined, UpOutlined } from '@ant-design/icons-vue';
 
 
@@ -75,98 +73,88 @@ import axios from 'axios';
 import {getLogPageList} from "@/api/log";
 
 
-const onFinish = (values: any) => {
-  console.log('Received values of form: ', values);
-  console.log('formState: ', formState);
-};
+const onFinish = async (values: any) => {
+  let log=await getLogPageList(values);
+  console.log(log);
+  data.value=log.data
 
-let inputField=[
-  "名字","专业","班级","老师","题目","院系"
+};
+let searchField=[
+  {
+    field:"",
+    title:""
+  },
+  {
+    field:"operIp",
+    title:"操作IP"
+  },
+  {
+    field:"operUrl",
+    title:"操作URL"
+  },
+  {
+    field:"requestMethod",
+    title:"操作方法"
+  },
+  {
+    field:"operName",
+    title:"操作人"
+  },
 ]
+
 
 let logRequestParam:API.LogQueryParam={
 
 }
 
-onMounted(()=>{
-  let log=getLogPageList(logRequestParam);
+let data = ref<API.LogData>();
+
+onMounted(async ()=>{
+  let log=await getLogPageList(logRequestParam);
   console.log(log);
+  data.value=log.data
 })
 
 const columns = [
   {
-    title: 'Name',
-    dataIndex: 'name',
-    sorter: true,
-    width: '20%',
+    title: '日志级别',
+    dataIndex: 'level',
   },
   {
-    title: 'Gender',
-    dataIndex: 'gender',
-    filters: [
-      { text: 'Male', value: 'male' },
-      { text: 'Female', value: 'female' },
-    ],
-    width: '20%',
+    title: '业务类型',
+    dataIndex: 'businessType',
   },
   {
-    title: 'Email',
-    dataIndex: 'email',
+    title: '请求方式',
+    dataIndex: 'requestMethod',
+  }, {
+    title: '操作人',
+    dataIndex: 'operName',
+  }, {
+    title: '请求URL',
+    dataIndex: 'operUrl',
+  }, {
+    title: '请求IP',
+    dataIndex: 'operIp',
+  }, {
+    title: '请求耗时',
+    dataIndex: 'operTime',
+  }, {
+    title: '异常详情',
+    dataIndex: 'exceptionDetail',
   },
 ];
 
-type APIParams = {
-  results: number;
-  page?: number;
-  sortField?: string;
-  sortOrder?: number;
-  [key: string]: any;
-};
-type APIResult = {
-  results: {
-    gender: 'female' | 'male';
-    name: string;
-    email: string;
-  }[];
-};
 
-const queryData = (params: APIParams) => {
-  return axios.get<APIResult>('https://randomuser.me/api?noinfo', { params });
-};
 
-const {
-  data: dataSource,
-  run,
-  loading,
-  current,
-  pageSize,
-} = usePagination(queryData, {
-  formatResult: res => res.data.results,
-  pagination: {
-    currentKey: 'page',
-    pageSizeKey: 'results',
-  },
+type Key = string | number;
+const state = reactive<{
+  selectedRowKeys: Key[];
+  loading: boolean;
+}>({
+  selectedRowKeys: [], // Check here to configure the default column
+  loading: false,
 });
-
-const pagination = computed(() => ({
-  total: 200,
-  current: current.value,
-  pageSize: pageSize.value,
-}));
-
-const handleTableChange: TableProps['onChange'] = (
-    pag: { pageSize: number; current: number },
-    filters: any,
-    sorter: any,
-) => {
-  run({
-    results: pag.pageSize!,
-    page: pag?.current,
-    sortField: sorter.field,
-    sortOrder: sorter.order,
-    ...filters,
-  });
-};
 
 </script>
 
