@@ -1,72 +1,158 @@
 <template>
   <div class="content">
+
     <div class="--middle-table">
-      <a-table
-          :columns="columns"
-          :data-source="data"
-      >
-        <template #bodyCell="{ column }">
-          <template v-if="column.key === 'operation'">
-            <a>修改</a>
-          </template>
-        </template>
-      </a-table>
+      <a-card title="毕设详情" :bordered="false" style="width: 600px">
+        <div>
+          <div style="display: flex;margin-bottom: 10px">
+            <span style="padding-right: 10px">毕设题目:</span>
+            <a-mentions style="flex: 1" :placeholder="project.title" readonly/>
+          </div>
+          <div style="display: flex;margin-bottom: 10px">
+            <span style="padding-right: 10px">指导老师:</span>
+            <a-mentions style="flex: 1" :placeholder="project.teacherName" readonly/>
+          </div>
+          <div style="display: flex;margin-bottom: 10px">
+            <span style="padding-right: 10px">开始时间:</span>
+            <a-mentions style="flex: 1" :placeholder="project.startDate" readonly/>
+          </div>
+          <div style="display: flex;margin-bottom: 10px">
+            <span style="padding-right: 10px">结束时间:</span>
+            <a-mentions style="flex: 1" :placeholder="project.endDate" readonly/>
+          </div>
+          <div style="display: flex;margin-bottom: 10px">
+            <span style="padding-right: 10px">所属专业:</span>
+            <a-mentions style="flex: 1" :placeholder="project.major" readonly/>
+          </div>
+          <div style="display: flex;margin-bottom: 10px">
+            <span style="padding-right: 10px">学生类型:</span>
+            <a-mentions style="flex: 1" :placeholder="project.studentType" readonly/>
+          </div>
+        </div>
+      </a-card>
+    </div>
+    <div class="footer">
+      <a-card title="文档提交" :bordered="false" style="width: 600px">
+        <a-upload-dragger
+            v-model:fileList="fileList"
+            name="file"
+            :multiple="true"
+            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            @change="handleChange"
+            @drop="handleDrop"
+        >
+          <p class="ant-upload-drag-icon">
+            <inbox-outlined></inbox-outlined>
+          </p>
+          <p class="ant-upload-text">提交论文</p>
+        </a-upload-dragger>
+        <div style="margin: 20px"></div>
+        <a-upload-dragger
+            v-model:fileList="fileList"
+            name="file"
+            :multiple="true"
+            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            @change="handleChange"
+            @drop="handleDrop"
+        >
+          <p class="ant-upload-drag-icon">
+            <inbox-outlined></inbox-outlined>
+          </p>
+          <p class="ant-upload-text">提交开题报告</p>
+        </a-upload-dragger>
+      </a-card>
     </div>
   </div>
-
+  <div class="step">
+    <a-steps :current="status">
+      <a-step v-for="item in steps" :key="item.title" :title="item.title"/>
+    </a-steps>
+    <div class="steps-content">
+      {{ steps[status].content }}
+    </div>
+    <div class="steps-action">
+      <a-button v-if="status < steps.length - 1" type="primary" @click="next">选择状态</a-button>
+      <a-button
+          v-if="status == steps.length - 1"
+          type="primary"
+      >
+        结束
+      </a-button>
+      <a-button v-if="status > 0" style="margin-left: 8px" @click="prev">前一状态</a-button>
+      <a-button style="margin-left: 10px" type="primary" @click="handleOk">确认状态</a-button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {ref, reactive} from "vue";
-import type {FormInstance} from "ant-design-vue";
+import {ref, reactive, onMounted, onBeforeMount} from "vue";
+import {currentProject, statusUpdate} from "@/api/project";
 
-const expand = ref(false);
-const formRef = ref<FormInstance>();
-const formState = reactive({
-  title: null,
-  content: null
-});
-import {DownOutlined, UpOutlined} from '@ant-design/icons-vue';
+import type {UploadChangeParam} from 'ant-design-vue';
+import {InboxOutlined} from '@ant-design/icons-vue';
+import Swal from "sweetalert2";
 
+let project = reactive<API.currentProject>({});
 
-const onFinish = (values: any) => {
-  console.log('Received values of form: ', values);
-  console.log('formState: ', formState);
-};
-const searchField = [
-  {
-    field: "",
-    title: ""
-  },
-  {
-    field: "name",
-    title: "标题"
-  },
-  {
-    field: "content",
-    title: "内容"
+const handleChange = (info: UploadChangeParam) => {
+  const status = info.file.status;
+  if (status !== 'uploading') {
+    console.log(info.file, info.fileList);
   }
-]
+  if (status === 'done') {
 
-const columns = [
+  } else if (status === 'error') {
+
+  }
+};
+
+const handleDrop = (e: DragEvent) => {
+  console.log(e);
+}
+
+const fileList = ref([]);
+
+onBeforeMount(async () => {
+  let res = await currentProject()
+  project = res.data
+  status.value = project.status;
+})
+
+const status = ref<number>(0);
+const next = () => {
+  status.value++;
+};
+const prev = () => {
+  status.value--;
+};
+
+
+let queryParam = reactive<API.QueryParam>({})
+const handleOk = async () => {
+  console.log(status.value)
+  queryParam.id = project.id
+  queryParam.status = status.value
+  await statusUpdate(queryParam)
+  let res = await currentProject()
+  project = res.data
+  status.value = project.status;
+
+}
+
+let steps = [
   {
-    title: 'dddd',
-    dataIndex: 'title',
+    title: '进行中',
+    content: '毕设状态',
   },
   {
-    title: '内容',
-    dataIndex: 'content',
+    title: '已完成',
+    content: '毕设状态',
   },
   {
-    title: '创建时间',
-    dataIndex: 'create_time',
+    title: '申请免答',
+    content: '毕设状态',
   },
-  {
-    key: "创建人",
-    title: '操作',
-    dataIndex: 'user',
-  },
-];
+]
 </script>
 
 <style lang="less" scoped>
@@ -74,23 +160,35 @@ const columns = [
 @--ant-div-background-color: #ffffff;
 @--el-border-color-light: 1px;
 
-.content{
+.content {
+  display: flex;
 
-  .-header-search {
-    padding: 20px;
+  .--middle-table {
     background-color: @--ant-div-background-color;
     box-shadow: 0 0 6px #0003;
     border: 1px solid var(--el-border-color-light);
     border-radius: 5px;
+    flex: 2.5;
   }
 
-  .--middle-table{
-    margin-top: 20px;
+  .footer {
+    margin-left: 20px;
     background-color: @--ant-div-background-color;
     box-shadow: 0 0 6px #0003;
     border: 1px solid var(--el-border-color-light);
     border-radius: 5px;
+    flex: 1;
   }
+
+}
+
+.step {
+  background-color: @--ant-div-background-color;
+  box-shadow: 0 0 6px #0003;
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 5px;
+  margin-top: 20px;
+  padding: 20px;
 }
 
 </style>

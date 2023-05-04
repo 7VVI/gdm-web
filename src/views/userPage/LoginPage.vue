@@ -2,45 +2,50 @@
 import {reactive, computed, ref, onMounted} from 'vue';
 import {UserOutlined, LockOutlined} from '@ant-design/icons-vue';
 import {defaultSettings} from "@/constants";
-import { useRouter } from "vue-router";
+import {useRouter} from "vue-router";
 import {HttpManager} from "@/api/system";
 import {menuStore} from "@/stores/menuStore";
-import Swal from "sweetalert2";
+import {userStore} from "@/stores/userStore";
 import {message} from "ant-design-vue";
+
 const todoDom = ref<any>(null);
 message.config({
   maxCount: 1,
-  getContainer:() => todoDom.value || document.body //父组件元素ID 找不到时 挂载到body上
+  getContainer: () => todoDom.value || document.body //父组件元素ID 找不到时 挂载到body上
 })
-let imageUrl=ref();
-let verifyCodeUuid=ref();
-let store=menuStore();
+let currentUserStore = userStore();
+let imageUrl = ref();
+let verifyCodeUuid = ref();
+let store = menuStore();
 
 const route = useRouter();
+
 interface FormState {
   username: string;
   password: string;
   remember: boolean;
-  randomKey:string;
-  verifyCode:string;
+  randomKey: string;
+  verifyCode: string;
 }
 
 const formState = reactive<FormState>({
   username: '',
   password: '',
   remember: true,
-  randomKey:'',
-  verifyCode:'',
+  randomKey: '',
+  verifyCode: '',
 });
 
-const onFinish =async (values: any) => {
-  console.log('Success:', values);
-  values.randomKey=verifyCodeUuid.value
-  let res= await HttpManager.login(values)
-  if(res.code==200){
-   message.success("登录成功")
+const onFinish = async (values: any) => {
+  values.randomKey = verifyCodeUuid.value
+  let res = await HttpManager.login(values)
+  currentUserStore.$patch(state => {
+    state.token = res.data.token
+  })
+  if (res.code == 200) {
+    message.success("登录成功")
     await route.push({path: "/layout/main", replace: true});
-  }else{
+  } else {
     message.error("登录失败！验证码或密码错误")
     await route.push({path: "/login", replace: true});
   }
@@ -53,10 +58,10 @@ const disabled = computed(() => {
   return !(formState.username && formState.password);
 });
 
-onMounted(async ()=>{
- let verifyCode=await HttpManager.getVerifyCoe();
-  imageUrl.value="data:image/png;base64,"+verifyCode.data.imgBase64;
-  verifyCodeUuid.value=verifyCode.data.uuid;
+onMounted(async () => {
+  let verifyCode = await HttpManager.getVerifyCoe();
+  imageUrl.value = "data:image/png;base64," + verifyCode.data.imgBase64;
+  verifyCodeUuid.value = verifyCode.data.uuid;
   // console.log(verifyCode.data)
   await store.getMenu();
 })
@@ -64,7 +69,7 @@ onMounted(async ()=>{
 
 <template>
   <div class="content" ref="todoDom">
-    <div class="project-name">{{defaultSettings.APP_NAME}}</div>
+    <div class="project-name">{{ defaultSettings.APP_NAME }}</div>
     <div class="login-form">
       <a-form
           :model="formState"
@@ -165,7 +170,8 @@ body, html {
       //background-color: #fbc2eb;
 
     }
-    .project-name{
+
+    .project-name {
       margin-bottom: 5%;
       //background-color: #a6c1ee;
       font-weight: bold;

@@ -53,9 +53,25 @@
           :data-source="data"
           :loading="loading"
       >
-        <template #bodyCell="{ column }">
-          <template v-if="column.key === 'operation'">
-            <a>修改</a>
+        <template #name="{ record }">
+          <template v-if="record.status==='已完成'">
+          <a-button type="primary"   @click="showModal()">评分</a-button>
+          <a-modal v-model:visible="visible" title="题目审核" @ok="handleOk(record)">
+            <a-form :label-col="formItemLayout.labelCol" :wrapper-col="formItemLayout.wrapperCol">
+              <a-form-item label="评审">
+                <a-radio-group v-model:value="modelRef.result">
+                  <a-radio value="1">通过</a-radio>
+                  <a-radio value="0">不通过</a-radio>
+                </a-radio-group>
+              </a-form-item>
+              <a-form-item  label="分数" :rules="[{ type: 'float', min: 0, max: 99 }]">
+                <a-input-number v-model:value="modelRef.score" />
+              </a-form-item>
+              <a-form-item label="评分指标" required>
+                <a-textarea v-model:value="modelRef.opinion" placeholder="请输入评分指标"/>
+              </a-form-item>
+            </a-form>
+          </a-modal>
           </template>
         </template>
       </a-table>
@@ -67,7 +83,9 @@
 <script setup lang="ts">
 import {ref, reactive, computed, toRefs, onMounted} from "vue";
 import type {FormInstance} from "ant-design-vue";
-import {projectListAll} from "@/api/topic.selection";
+import {getMajor, getStudentType, projectListAll} from "@/api/topic.selection";
+import {departmentAudit, getDepartmentAudit} from "@/api/designProjectAuditFlow";
+import {scoreAdd} from "@/api/score";
 
 const expand = ref(false);
 const formRef = ref<FormInstance>();
@@ -77,20 +95,46 @@ const formState = reactive({
   teacherName: null,
 });
 
+let modelRef = reactive({
+  opinion: '',
+  projectId:null,
+  result: undefined,
+  score:null,
+});
+
+//审核对话框
+const visible = ref<boolean>(false);
+const showModal = () => {
+  visible.value = true;
+};
+
+const handleOk =async (record:any) => {
+  visible.value = false;
+  modelRef.projectId=record.id
+let res= await scoreAdd(modelRef)
+  console.log(res.data)
+};
+
+const formItemLayout = {
+  labelCol: {span: 6},
+  wrapperCol: {span: 14},
+};
+
 let loading=ref(false)
 
 const onFinish = async (values: any) => {
-  console.log('Received values of form: ', values);
-  console.log('formState: ', formState);
   loading.value=true
   let reaponse = await projectListAll(formState)
   data.value = reaponse.data;
   data.value?.forEach(project => {
+    project.key=project.id;
     if (project.status == 0) {
       project.status = "进行中"
     } else if (project.status == 1) {
       project.status = '已完成'
-    } else {
+    } else if(project.status == 4){
+      project.status = '已评分'
+    }else{
       project.status = '已取消'
     }
   })
@@ -143,6 +187,13 @@ const columns = [
     title: '指导老师',
     dataIndex: 'teacherName',
   },
+  {
+    title: "操作",
+    key: "操作",
+    dataIndex: "key",
+    align: "center",
+    slots: {customRender: "name"},//绑定插槽
+  }
 ];
 
 interface DataType {
@@ -186,10 +237,13 @@ onMounted(async () => {
   let reaponse = await projectListAll({})
   data.value = reaponse.data;
   data.value?.forEach(project => {
+    project.key=project.id;
     if (project.status == 0) {
       project.status = "进行中"
     } else if (project.status == 1) {
       project.status = '已完成'
+    }else if(project.status == 4){
+      project.status = '已评分'
     } else {
       project.status = '已取消'
     }

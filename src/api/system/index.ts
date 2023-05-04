@@ -9,7 +9,7 @@ const HttpManager = {
      * @param body
      */
     login(body: LoginParams){
-        return request<BaseResponse<any>>({
+        return request<BaseResponse<Record<string, string>>>({
             url: "/user/baseLogin",
             data: body,
             method: "post"
@@ -56,7 +56,7 @@ const HttpManager = {
         return request<BaseResponse<any>>({
             url: "/menuManage/delete",
             method: "get",
-            params:ids,
+            params: {ids},
         })
     },
 
@@ -67,6 +67,17 @@ const HttpManager = {
         return request({
             url: "user/imgVerifyCode",
             method: "get"
+        })
+    },
+
+    /**
+     * 获取登录的用户
+     * @param ids
+     */
+    getCurrentUser(){
+        return request<BaseResponse<any>>({
+            url: "/user/getCurrentUser",
+            method: "get",
         })
     },
 

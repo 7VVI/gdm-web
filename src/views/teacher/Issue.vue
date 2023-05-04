@@ -256,7 +256,7 @@ const columns = [
   },
   {
     title: '导师',
-    dataIndex: 'teacher',
+    dataIndex: 'teacherName',
   },
   {
     title: '学生类型',

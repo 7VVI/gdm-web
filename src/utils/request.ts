@@ -1,6 +1,8 @@
 import axios from 'axios'
 import BaseResponse = API.BaseResponse;
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import {userStore} from "@/stores/userStore";
+import {storeToRefs} from "pinia";
 // 自定义 axios 实例
 const request = axios.create({
     baseURL:
@@ -16,7 +18,16 @@ request.defaults.withCredentials = true;
 request.interceptors.request.use(
     function (config) {
         // 在发送请求之前做些什么
+        const  commonStore = userStore()
+        const { token } = storeToRefs( commonStore )
+        // 配置请求头
+        config.headers = {
+            // 'Content-Type':'application/x-www-form-urlencoded',   // 传参方式表单
+            'Content-Type': 'application/json;charset=UTF-8', // 传参方式json
+            'Authorization': `Bearer ${token.value}`, // 设置Authorization
+            // 'token': token.value // 或者设置token
 
+        };
         return config;
     },
     function (error) {

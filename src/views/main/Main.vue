@@ -89,6 +89,7 @@ onBeforeMount(() => {
   spinning.value = true;
 })
 
+let tt=ref()
 let announcementN=ref()
 onMounted(async () => {
   spinning.value = false;
@@ -96,6 +97,8 @@ let res=await  announcementNow()
   announcementN.value=res.data.content
  let resAnnouncement= await getAnnouncement({})
   items.value=resAnnouncement.data
+  let r=await HttpManager.getCurrentUser()
+  tt=r.data
 })
 
 const value = ref<Dayjs>();
@@ -108,6 +111,7 @@ const  items=  ref()
 import img from "@/assets/img/百度.svg";
 import {notification} from "ant-design-vue";
 import {announcementNow, getAnnouncement} from "@/api/announcement";
+import {HttpManager} from "@/api/system";
 let quickAccessItems= [
   {
     name: 'Bai du',
@@ -176,7 +180,7 @@ body, html {
           border: 1px solid var(--el-border-color-light);
           border-radius: 5px;
           margin: 0 10px 0 0;
-          background-color: rgba(112, 241, 176, 0.3);
+          background-color: rgba(112, 133, 241, 0.3);
           display: flex;
           height: 100%;
           flex: 1;
@@ -220,7 +224,7 @@ body, html {
           border: 1px solid @--el-border-color-light;
           border-radius: 5px;
           margin: 0 0 0 10px;
-          background-color: rgba(209, 241, 112, 0.3);
+          background-color: rgba(112, 241, 202, 0.3);
           display: flex;
           height: 100%;
           flex: 1;

@@ -18,10 +18,10 @@ export const menuStore = defineStore('sideMenu', {
         key: "menu-store",
         storage: window.localStorage,
         beforeRestore: (context) => {
-            console.log("load userStore data start");
+            console.log("load menuStore data start");
         },
         afterRestore: (context) => {
-            console.log("load userStore data end");
+            console.log("load menuStore data end");
         },
     },
     actions: {

@@ -313,6 +313,13 @@ let res=await HttpManager.deleteMenu(state.selectedRowKeys.join(","));
         }
     )
   }
+  //获取分页菜单
+  let response = await HttpManager.getMenu({});
+  data.value = response.data.data;
+  data.value?.forEach(e=>{
+    e.key=e.menuId;
+  })
+
 };
 
 const cancel = (e: MouseEvent) => {

@@ -39,4 +39,21 @@ declare namespace API {
         major:number;
         studentType: number
     }[]
+
+    type currentProject={
+        id?:number;
+        status?:number;
+        direction?: string
+        endDate?: string
+        major?: string
+        startDate?: string
+        studentType?: string
+        teacherName?: string
+        title?: string
+    }
+
+    type QueryParam={
+        id?:number;
+        status?:number;
+    }
 }

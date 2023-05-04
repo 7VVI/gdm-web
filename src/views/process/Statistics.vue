@@ -37,6 +37,7 @@
 import {ref, reactive, onMounted} from "vue";
 import * as echarts from 'echarts';
 import {designProjectAuditFlowPercent} from "@/api/designProjectAuditFlow";
+import {projectState} from "@/api/project";
 
 // 获取 DOM 节点的引用
 const chart = ref<HTMLDivElement | null>(null);
@@ -109,7 +110,7 @@ const initPillar = (container: HTMLElement) => {
   // 配置选项
   let option = {
     title: {
-      text: '选题审核详情',
+      text: '选题完成情况',
       subtext: '',
       left: 'left'
     },
@@ -128,7 +129,7 @@ const initPillar = (container: HTMLElement) => {
     xAxis: [
       {
         type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        data: states.value,
         axisTick: {
           alignWithLabel: true
         }
@@ -144,7 +145,7 @@ const initPillar = (container: HTMLElement) => {
         name: 'Direct',
         type: 'bar',
         barWidth: '60%',
-        data: [10, 52, 200, 334, 390, 330, 220]
+        data: counts.value
       }
     ]
   };
@@ -154,17 +155,23 @@ const initPillar = (container: HTMLElement) => {
 };
 
 let data = reactive({})
-
-
+let states=ref()
+let counts=ref()
+let tupleArray=ref()
 onMounted(async () => {
   let response = await designProjectAuditFlowPercent()
   data = response.data
+  let res=await projectState()
+  tupleArray.value=res.data
+  states.value = tupleArray.value.map(item => item.state);
+  counts.value = tupleArray.value.map(item => item.count);
   if (chart.value) {
     initChart(chart.value);
   }
   if (pillar.value) {
     initPillar(pillar.value)
   }
+
 })
 
 </script>
