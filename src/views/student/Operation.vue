@@ -120,7 +120,7 @@ const confirm = async (record: any) => {
     endDate
   })
   if(response.data==1){
-    console.log("添加陈工")
+    console.log("添加成功")
   }
   let responseProject = await projectListAll({});
   data.value = responseProject.data
@@ -139,9 +139,20 @@ const cancel = (e: MouseEvent) => {
   console.log(e);
 };
 
-const onFinish = (values: any) => {
+const onFinish =async (values: any) => {
   console.log('Received values of form: ', values);
   console.log('formState: ', formState);
+  let response = await projectListAll(formState);
+  data.value = response.data
+  let responseMajor = await getMajor();
+  majorInfo = responseMajor.data
+  let studentTypeResponse = await getStudentType();
+  studentTypeInfo = studentTypeResponse.data
+  data.value?.forEach(project => {
+    project.studentType = getNameByCode(project.studentType, studentTypeInfo)
+    project.major = getNameByCode(project.major, majorInfo)
+    project.key = project.id
+  })
 };
 const searchField = [
   {

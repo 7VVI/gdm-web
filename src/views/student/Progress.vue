@@ -36,10 +36,12 @@
         <a-upload-dragger
             v-model:fileList="fileList"
             name="file"
+            accept=".doc,.docx"
             :multiple="true"
             action="http://localhost:9000/api/fileManage/upload"
             @change="handleChange"
             @drop="handleDrop"
+            :headers="header"
         >
           <p class="ant-upload-drag-icon">
             <inbox-outlined></inbox-outlined>
@@ -58,15 +60,15 @@
       {{ steps[status].content }}
     </div>
     <div class="steps-action">
-      <a-button v-if="status < steps.length - 1" type="primary" @click="next">选择状态</a-button>
+      <a-button v-if="status < steps.length - 1" type="primary" @click="next">选择进度</a-button>
       <a-button
           v-if="status == steps.length - 1"
           type="primary"
       >
         结束
       </a-button>
-      <a-button v-if="status > 0" style="margin-left: 8px" @click="prev">前一状态</a-button>
-      <a-button style="margin-left: 10px" type="primary" @click="handleOk">确认状态</a-button>
+      <a-button v-if="status > 0" style="margin-left: 8px" @click="prev">前一进度</a-button>
+      <a-button style="margin-left: 10px" type="primary" @click="handleOk">确认进度</a-button>
     </div>
   </div>
 </template>
@@ -77,7 +79,15 @@ import {currentProject, statusUpdate} from "@/api/project";
 
 import type {UploadChangeParam} from 'ant-design-vue';
 import {InboxOutlined} from '@ant-design/icons-vue';
+import {userStore} from "@/stores/userStore";
+import {storeToRefs} from "pinia";
 
+let store=userStore()
+const { token } = storeToRefs( store )
+
+let header={
+  'Authorization': `Bearer ${token.value}`, // 设置Authorization
+}
 
 let project = reactive<API.currentProject>({});
 
@@ -101,14 +111,16 @@ const fileList = ref([]);
 
 onBeforeMount(async () => {
   let res = await currentProject()
-  project = res.data
-
-  if(project.status===3){
+  // project = res.data
+  Object.assign(project, res.data);
+  console.log(project)
+  if(project?.status===3){
     status.value=2
   }else{
     status.value = project.status;
   }
 })
+
 
 const status = ref<number>(0);
 const next = () => {

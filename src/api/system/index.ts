@@ -99,6 +99,15 @@ const HttpManager = {
         })
     },
 
+    downloadFile(accountId:string){
+        return request({
+            url: "/fileManage/download",
+            method: "get",
+            params:{accountId},
+            responseType: 'blob'
+        })
+    },
+
 }
 
 export {HttpManager}
