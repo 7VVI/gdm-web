@@ -1,6 +1,7 @@
 import request from "@/utils/request";
 import LoginParams = API.LoginParams
 import BaseResponse = API.BaseResponse;
+import RegistryParam = API.RegistryParam;
 
 const HttpManager = {
 
@@ -16,9 +17,26 @@ const HttpManager = {
         })
     },
 
+    registry(body: RegistryParam){
+        return request<BaseResponse<any>>({
+            url: "/user/userRegistry",
+            data: body,
+            method: "post"
+        })
+    },
+
+
     /**
-     * 获取菜单信息
+     * 权限获取菜单信息
      */
+    getMenuByPermissions(data: any) {
+        return request<BaseResponse<any>>({
+            url: "/menuManage/listAll",
+            method: "post",
+            data
+        })
+    },
+
     getMenu(data: any) {
         return request<BaseResponse<any>>({
             url: "/menuManage/pageList",

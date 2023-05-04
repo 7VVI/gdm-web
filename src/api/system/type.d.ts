@@ -30,15 +30,15 @@ declare namespace API {
      */
     interface Menu {
         //菜单唯一id
-        menuId: number,
+        menuId: number;
         //菜单标题
-        title: string,
+        title: string;
         //上级菜单ID
-        pid: number,
+        pid: number;
         //路由
-        path: string,
+        path: string;
         //组件名称
-        name: string,
+        name: string;
         //组件
         component:string;
         // 菜单图标
@@ -46,15 +46,15 @@ declare namespace API {
         // 图标颜色
         iconColor?: string;
         //是否隐藏
-        hidden: boolean,
+        hidden: boolean;
         //创建者
-        createBy?: string,
+        createBy?: string;
         //更新者
-        updateBy?: string,
+        updateBy?: string;
         //创建时间
-        createTime?: string,
+        createTime?: string;
         //更新时间
-        updateTime?: string,
+        updateTime?: string;
         //子菜单
         children?: Menu[]
     }
@@ -88,6 +88,16 @@ declare namespace API {
             hidden: boolean | null;
         };
         children?: Router[]
+    }
+
+    type RegistryParam={
+        checkPassword: string;
+        email: string;
+        gender: number;
+        mobile: string;
+        name: string;
+        password: string;
+        username: string
     }
 
 }

@@ -27,11 +27,13 @@
         />
         <menu-fold-outlined v-else class="trigger" @click="() => (collapsed = !collapsed)"/>
         <div style="flex: 1"></div>
+        <router-link to="/login">
         <a-avatar
             style="margin-right: 2%"
             class="avatar"
             src="https://picgo-liziyuan.oss-cn-hangzhou.aliyuncs.com/img202303191543178.png"
         />
+        </router-link>
       </a-layout-header>
       <a-layout-content
           :style="{ margin: '16px',background: '#f0f2f5', minHeight: '280px', }"

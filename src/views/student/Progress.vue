@@ -37,7 +37,7 @@
             v-model:fileList="fileList"
             name="file"
             :multiple="true"
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            action="http://localhost:9000/api/fileManage/upload"
             @change="handleChange"
             @drop="handleDrop"
         >
@@ -47,19 +47,6 @@
           <p class="ant-upload-text">提交论文</p>
         </a-upload-dragger>
         <div style="margin: 20px"></div>
-        <a-upload-dragger
-            v-model:fileList="fileList"
-            name="file"
-            :multiple="true"
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-            @change="handleChange"
-            @drop="handleDrop"
-        >
-          <p class="ant-upload-drag-icon">
-            <inbox-outlined></inbox-outlined>
-          </p>
-          <p class="ant-upload-text">提交开题报告</p>
-        </a-upload-dragger>
       </a-card>
     </div>
   </div>
@@ -85,12 +72,12 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive, onMounted, onBeforeMount} from "vue";
+import {ref, reactive, onBeforeMount} from "vue";
 import {currentProject, statusUpdate} from "@/api/project";
 
 import type {UploadChangeParam} from 'ant-design-vue';
 import {InboxOutlined} from '@ant-design/icons-vue';
-import Swal from "sweetalert2";
+
 
 let project = reactive<API.currentProject>({});
 
@@ -115,15 +102,26 @@ const fileList = ref([]);
 onBeforeMount(async () => {
   let res = await currentProject()
   project = res.data
-  status.value = project.status;
+
+  if(project.status===3){
+    status.value=2
+  }else{
+    status.value = project.status;
+  }
 })
 
 const status = ref<number>(0);
 const next = () => {
   status.value++;
+  if(status.value===steps.length){
+    status.value=steps.length-1
+  }
 };
 const prev = () => {
   status.value--;
+  if(status.value<0){
+    status.value=0
+  }
 };
 
 
