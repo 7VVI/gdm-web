@@ -61,3 +61,11 @@ export function projectListAll(data:any) {
         data
     });
 }
+
+export function updateTopic(data:any) {
+    return request<API.BaseResponse<any>>({
+        url: '/topicSelectionManage/update',
+        method: 'post',
+        data
+    });
+}

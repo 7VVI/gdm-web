@@ -45,6 +45,14 @@ const HttpManager = {
         })
     },
 
+    updateMenu(data: any) {
+        return request<BaseResponse<any>>({
+            url: "/menuManage/update",
+            method: "post",
+            data
+        })
+    },
+
     /**
      * 获取后端角色信息
      */

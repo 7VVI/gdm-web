@@ -227,10 +227,6 @@ const columns = [
   {
     title: '指导老师',
     dataIndex: 'teacherName',
-  }, {
-    title: '操作',
-    dataIndex: 'operation',
-    key: "operation"
   },
   {
     title: "操作",

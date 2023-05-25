@@ -159,10 +159,35 @@
           :data-source="data"
           :loading="loading"
       >
-        <template #bodyCell="{ column }">
-          <template v-if="column.key === 'operation'">
-            <a>修改</a>
+        <template #bodyCell="{ column, text, record }">
+          <template v-if="['title', 'icon', 'iconColor','path','component','name','permissions','isHidden'].includes(column.dataIndex)">
+            <div>
+              <a-input
+                  v-if="editableData[record.key]"
+                  v-model:value="editableData[record.key][column.dataIndex]"
+                  style="margin: -5px 0"
+              />
+              <template v-else>
+                {{ text }}
+              </template>
+            </div>
           </template>
+          <template v-else-if="column.dataIndex === 'operation'">
+            <div class="editable-row-operations">
+          <span v-if="editableData[record.key]">
+            <a-typography-link @click="save(record.key)" style="margin-right: 10px">保存</a-typography-link>
+            <a-popconfirm title="确认取消?" @confirm="cancelUpdate(record.key)">
+              <a>取消</a>
+            </a-popconfirm>
+          </span>
+              <span v-else>
+            <a @click="edit(record.key)">修改</a>
+          </span>
+            </div>
+          </template>
+<!--          <template v-if="column.key === 'operation'">-->
+<!--            <a>修改</a>-->
+<!--          </template>-->
         </template>
       </a-table>
     </div>
@@ -171,7 +196,8 @@
 
 <script setup lang="ts">
 import {ref, computed, reactive, toRefs, onBeforeMount} from 'vue';
-
+import type { UnwrapRef } from 'vue';
+import { cloneDeep } from 'lodash-es';
 
 const expand = ref(false);
 const formRef = ref<FormInstance>();
@@ -234,7 +260,9 @@ interface DataType {
   component: string;
   name: string;
   permissions: string;
-  hidden: boolean;
+  menuPermissions: string;
+  hidden: number;
+  isHidden: string;
 }
 
 const columns = [
@@ -264,16 +292,17 @@ const columns = [
   },
   {
     title: '菜单权限',
-    dataIndex: 'permissions',
+    dataIndex: 'menuPermissions',
   },
   {
     title: '是否隐藏',
-    dataIndex: 'hidden',
+    dataIndex: 'isHidden',
   },
   {
     key: "operation",
     title: '操作',
     dataIndex: 'operation',
+    width: '10%',
   },
 ];
 
@@ -281,6 +310,8 @@ let loading=ref(false)
 let data = ref<DataType[]>();
 let permissions = ref()
 
+let menuPermissions=["","学生权限","管理员权限","指导老师","系负责人","院负责人"]
+let hiddenMenu=["不隐藏","隐藏"]
 onBeforeMount(async () => {
   loading.value=true;
   //获取分页菜单
@@ -288,6 +319,12 @@ onBeforeMount(async () => {
   data.value = response.data.data;
   data.value?.forEach(e=>{
       e.key=e.menuId;
+      e.isHidden=hiddenMenu[e.hidden];
+      let roles=e.permissions.split(",")
+    e.menuPermissions="";
+      roles.map(role=>{return Number(role)}).forEach(role=>{
+        e.menuPermissions= e.menuPermissions+"-"+menuPermissions[role]+"-";
+      })
   })
   loading.value=false;
 })
@@ -407,6 +444,30 @@ const onSubmitData = async () => {
         icon: 'success',
       }
   )
+};
+
+// 修改操作
+
+const editableData: UnwrapRef<Record<string, DataType>> = reactive({});
+
+const edit = (key: string) => {
+  if(data.value!=null&&data.value?.length>0)
+  editableData[key] = cloneDeep(data.value.filter(item => key === item.key)[0]);
+};
+const save = async (key: string) => {
+  if(data.value!=null&&data.value?.length>0)
+  Object.assign(data.value.filter(item => key === item.key)[0], editableData[key]);
+  for(let i=0;i<hiddenMenu.length;i++){
+    if(editableData[key].isHidden===hiddenMenu[i]){
+      editableData[key].hidden=i;
+    }
+  }
+ await HttpManager.updateMenu(editableData[key]);
+  console.log(editableData[key])
+  delete editableData[key];
+};
+const cancelUpdate = (key: string) => {
+  delete editableData[key];
 };
 
 </script>

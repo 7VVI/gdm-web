@@ -10,8 +10,8 @@ import {message} from "ant-design-vue";
 
 const todoDom = ref<any>(null);
 message.config({
-  maxCount: 1,
-  getContainer: () => todoDom.value || document.body //父组件元素ID 找不到时 挂载到body上
+  maxCount: 10,
+  getContainer: () =>todoDom.value||document.body //父组件元素ID 找不到时 挂载到body上
 })
 let currentUserStore = userStore();
 let imageUrl = ref();
@@ -39,11 +39,11 @@ const formState = reactive<FormState>({
 const onFinish = async (values: any) => {
   values.randomKey = verifyCodeUuid.value
   let res = await HttpManager.login(values)
-  currentUserStore.$patch(state => {
-    state.token = res.data.token
-  })
   if (res.code == 200) {
     message.success("登录成功")
+    currentUserStore.$patch(state => {
+      state.token = res.data.token
+    })
     await store.getMenu();
     await route.push({path: "/layout/main", replace: true});
   } else {
@@ -159,7 +159,8 @@ body, html {
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
-    background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+    //background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+    background-image: url("@/assets/img/login.jpg");
     align-items: center;
     justify-content: center;
     flex-direction: column;
@@ -177,7 +178,7 @@ body, html {
       font-weight: bold;
       font-size: 4rem;
       font-family: "Noto Serif SC", serif;
-      color: #fbc2eb;
+      color: #1e0721;
     }
   }
 

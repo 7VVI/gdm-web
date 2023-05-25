@@ -114,9 +114,32 @@
           :data-source="data"
           :loading="loading"
       >
-        <template #bodyCell="{ column }">
+        <template #bodyCell="{ column ,text, record }">
+        <template v-if="['title', 'major', 'direction','student','studentNum'].includes(column.dataIndex)">
+          <div>
+            <a-input
+                v-if="editableData[record.key]"
+                v-model:value="editableData[record.key][column.dataIndex]"
+                style="margin: -5px 0"
+            />
+            <template v-else>
+              {{ text }}
+            </template>
+          </div>
+        </template>
+
           <template v-if="column.key === 'operation'">
-            <a>修改</a>
+            <div class="editable-row-operations">
+          <span v-if="editableData[record.key]">
+            <a-typography-link @click="save(record.key)" style="margin-right: 10px">保存</a-typography-link>
+            <a-popconfirm title="确认取消?" @confirm="cancel(record.key)">
+              <a>取消</a>
+            </a-popconfirm>
+          </span>
+              <span v-else>
+            <a @click="edit(record.key)">修改</a>
+          </span>
+            </div>
           </template>
         </template>
       </a-table>
@@ -126,18 +149,19 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive, toRaw, computed, toRefs, onMounted} from "vue";
+import {ref, reactive, toRaw, computed, toRefs, onMounted, UnwrapRef} from "vue";
 import type {FormInstance} from "ant-design-vue";
 import {DownOutlined, UpOutlined} from '@ant-design/icons-vue';
 import {toArray} from 'lodash-es';
 import {Form, message} from 'ant-design-vue';
 import Swal from 'sweetalert2';
+import { cloneDeep } from 'lodash-es';
 import {
   addTopicSelection,
   getMajor,
   getStudentType,
   topicSelectionDelete,
-  topicSelectionListAll
+  topicSelectionListAll, updateTopic
 } from "@/api/topic.selection";
 
 const expand = ref(false);
@@ -189,23 +213,16 @@ const formItemLayout = {
   wrapperCol: {span: 14},
 };
 
+const auditStatus=["未审核","系已审核","院已审核","已被选题"]
 
 const onFinish =async (values: any) => {
  let topicSelectionResponse=await topicSelectionListAll(formState);
   data.value = topicSelectionResponse.data
   data.value?.forEach(e => {
     e.key = e.id;
-    e.studentType = getNameByCode(e.studentType, studentTypeInfo)
-    e.major = getNameByCode(e.major, majorInfo)
-    if(e.state==0){
-      e.state="未审核"
-    }else if(e.state==1){
-      e.state="系已审核"
-    }else if(e.state==2){
-      e.state="院已审核"
-    }else if(e.state==3){
-      e.state="已被选题"
-    }
+    e.student = getNameByCode(e.studentType, studentTypeInfo as any)!;
+    e.majorInfo = getNameByCode(e.major, majorInfo as any)!;
+    e.auditState=auditStatus[e.state];
   })
 };
 const searchField = [
@@ -260,7 +277,7 @@ const columns = [
   },
   {
     title: '学生类型',
-    dataIndex: 'studentType',
+    dataIndex: 'student',
   },
   {
     title: '学生数量',
@@ -268,7 +285,7 @@ const columns = [
   },
   {
     title: '状态',
-    dataIndex: 'state',
+    dataIndex: 'auditState',
   },
   {
     title: '审核结果',
@@ -277,7 +294,8 @@ const columns = [
   {
     title: '操作',
     dataIndex: 'operation',
-    key: "operation"
+    key: "operation",
+    width: '10%',
   },
 
 ];
@@ -291,22 +309,14 @@ const showModal = () => {
 const handleOk = async (e: MouseEvent) => {
   let res = await addTopicSelection(modelRef);
   visible.value = false;
-  modelRef = {}
+  modelRef =  {title: '', major: undefined, direction: '', studentNum: undefined, studentType: undefined}
   let topicSelectionResponse = await topicSelectionListAll({})
-  data.value = topicSelectionResponse.data
+  data.value = topicSelectionResponse.data as any
   data.value?.forEach(e => {
     e.key = e.id;
-    e.studentType = getNameByCode(e.studentType, studentTypeInfo)
-    e.major = getNameByCode(e.major, majorInfo)
-    if(e.state==0){
-      e.state="未审核"
-    }else if(e.state==1){
-      e.state="系已审核"
-    }else if(e.state==2){
-      e.state="院已审核"
-    }else if(e.state==3){
-      e.state="已被选题"
-    }
+    e.student = getNameByCode(e.studentType, studentTypeInfo as any)!;
+    e.majorInfo = getNameByCode(e.major, majorInfo as any)!;
+    e.auditState=auditStatus[e.state];
   })
   // message.success("添加成功")
   // if(res.data==1){
@@ -354,13 +364,33 @@ interface DataType {
   id: number;
   title: string;
   major: number;
+  majorInfo: string;
   direction: string;
   teacher: number;
-  studentType: string;
+  studentType: number;
+  student: string;
   studentNum: number;
-  state:string;
+  state:number;
+  auditState:string,
   result:string;
 }
+
+const editableData: UnwrapRef<Record<string, DataType>> = reactive({});
+const edit = (key: string) => {
+  if(data.value!=null&&data.value.length>0){
+    editableData[key] = cloneDeep(data.value.filter(item => key === item.key)[0]);
+  }
+};
+const save = async (key: string) => {
+  if(data.value!=null&&data.value.length>0) {
+    Object.assign(data.value.filter(item => key === item.key)[0], editableData[key]);
+  await  updateTopic(editableData[key]);
+    delete editableData[key];
+  }
+};
+const cancel = (key: string) => {
+  delete editableData[key];
+};
 
 let loading = ref(false)
 let data = ref<DataType[]>();
@@ -373,25 +403,17 @@ onMounted(async () => {
   let studentTypeResponse = await getStudentType();
   studentTypeInfo = studentTypeResponse.data
   let topicSelectionResponse = await topicSelectionListAll({})
-  data.value = topicSelectionResponse.data
+  data.value = topicSelectionResponse.data as any;
   data.value?.forEach(e => {
     e.key = e.id;
-    e.studentType = getNameByCode(e.studentType, studentTypeInfo)
-    e.major = getNameByCode(e.major, majorInfo)
-    if(e.state=="0"){
-      e.state="未审核"
-    }else if(e.state=="1"){
-      e.state="系已审核"
-    }else if(e.state=="2"){
-      e.state="院已审核"
-    }else if(e.state==3){
-      e.state="已被选题"
-    }
+    e.student = getNameByCode(e.studentType, studentTypeInfo as any)!;
+    e.majorInfo = getNameByCode(e.major, majorInfo as any)!;
+    e.auditState=auditStatus[e.state];
   })
   loading.value = false;
 })
 
-function getNameByCode(code: string, data: { code: string, name: string }[]): string | undefined {
+function getNameByCode(code: number, data: { code: string, name: string }[]): string | undefined {
   const obj = data.find(item => item.code == code);
   return obj && obj.name;
 }
