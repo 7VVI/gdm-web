@@ -1,7 +1,7 @@
 declare namespace API {
 
     type Announcement = {
-        key:number;
+        key:string;
         id: number;
         title: string,
         content: string,

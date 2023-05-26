@@ -53,9 +53,31 @@
           :data-source="data"
           :loading="loading"
       >
-        <template #bodyCell="{ column }">
-          <template v-if="column.key === 'operation'">
-            <a>修改</a>
+        <template #bodyCell="{ column, text, record }">
+          <template v-if="['title', 'content'].includes(column.dataIndex)">
+            <div>
+              <a-input
+                  v-if="editableData[record.key]"
+                  v-model:value="editableData[record.key][column.dataIndex]"
+                  style="margin: -5px 0"
+              />
+              <template v-else>
+                {{ text }}
+              </template>
+            </div>
+          </template>
+          <template v-else-if="column.dataIndex === 'operation'">
+            <div class="editable-row-operations">
+          <span v-if="editableData[record.key]">
+            <a-typography-link @click="save(record.key)" style="margin-right: 10px">保存</a-typography-link>
+            <a-popconfirm title="确认取消?" @confirm="cancel(record.key)">
+              <a>取消</a>
+            </a-popconfirm>
+          </span>
+              <span v-else>
+            <a @click="edit(record.key)">修改</a>
+          </span>
+            </div>
           </template>
         </template>
       </a-table>
@@ -67,6 +89,8 @@
 <script setup lang="ts">
 import {ref, reactive, computed, toRefs, onMounted} from "vue";
 import type {FormInstance} from "ant-design-vue";
+import { cloneDeep } from 'lodash-es';
+import type { UnwrapRef } from 'vue';
 
 const expand = ref(false);
 const formRef = ref<FormInstance>();
@@ -75,7 +99,7 @@ const formState = reactive({
   content: null
 });
 import {DownOutlined, UpOutlined} from '@ant-design/icons-vue';
-import {announcementAdd, announcementDelete, getAnnouncement} from "@/api/announcement";
+import {announcementAdd, announcementDelete, announcementUpdate, getAnnouncement} from "@/api/announcement";
 import {topicSelectionDelete} from "@/api/topic.selection";
 import AnnouncementAddParam = API.AnnouncementAddParam;
 let loading=ref(false)
@@ -131,6 +155,12 @@ const columns = [
     key: "发布时间",
     title: '发布时间',
     dataIndex: 'createTime',
+  },
+  {
+    title: '操作',
+    dataIndex: 'operation',
+    key: "operation",
+    width: '10%',
   },
 ];
 
@@ -193,6 +223,23 @@ const deleteTopicSelection = async () => {
     e.key = e.id
   })
 }
+
+const editableData: UnwrapRef<Record<string, API.Announcement>> = reactive({});
+
+const edit = (key: string) => {
+  if(data.value!=null)
+  editableData[key] = cloneDeep(data.value.filter(item => key === item.key)[0]);
+};
+const save =async (key: string) => {
+  if(data.value!=null)
+  Object.assign(data.value.filter(item => key === item.key)[0], editableData[key]);
+  console.log(editableData[key])
+ await announcementUpdate(editableData[key]);
+  delete editableData[key];
+};
+const cancel = (key: string) => {
+  delete editableData[key];
+};
 </script>
 
 <style lang="less" scoped>

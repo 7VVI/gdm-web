@@ -25,6 +25,18 @@ export function announcementAdd(data:any) {
     });
 }
 
+/**
+ * 公告更新
+ * @param data
+ */
+export function announcementUpdate(data:any) {
+    return request<API.BaseResponse<number>>({
+        url: '/announcementManage/update',
+        method: 'post',
+        data
+    });
+}
+
 
 export function announcementDelete(ids:string) {
     return request<API.BaseResponse<number>>({

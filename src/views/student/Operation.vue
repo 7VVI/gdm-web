@@ -110,17 +110,26 @@ const formState = reactive({
 import {DownOutlined, UpOutlined} from '@ant-design/icons-vue';
 import {projectAdd, projectListAll} from "@/api/project";
 import {getMajor, getStudentType} from "@/api/topic.selection";
+import Swal from "sweetalert2";
 
 const confirm = async (record: any) => {
   console.log(record);
-  let {id: topicId,startDate,endDate} = record
+  let {id: topicId, startDate, endDate} = record
   let response = await projectAdd({
     topicId,
     startDate,
     endDate
   })
-  if(response.data==1){
+  if (response.data == 1) {
     console.log("添加成功")
+  }
+  if(response.data!==200){
+    await Swal.fire(
+        {
+          title: '选题失败',
+          icon: 'error',
+        }
+    )
   }
   let responseProject = await projectListAll({});
   data.value = responseProject.data
@@ -139,7 +148,7 @@ const cancel = (e: MouseEvent) => {
   console.log(e);
 };
 
-const onFinish =async (values: any) => {
+const onFinish = async (values: any) => {
   console.log('Received values of form: ', values);
   console.log('formState: ', formState);
   let response = await projectListAll(formState);

@@ -75,9 +75,11 @@
           :columns="columns"
           :data-source="data"
           :loading="loading"
+          rowKey="id"
       >
-        <template #name="{ record }">
-          <a-button type="primary" @click="showModal()">审核</a-button>
+        <template #bodyCell="{ column, text, record }">
+          <template v-if="column.key === 'operation'">
+          <a-button type="primary" @click="showModal(record)">审核</a-button>
           <a-modal v-model:visible="visible" title="题目审核" @ok="handleOk(record)">
             <a-form :label-col="formItemLayout.labelCol" :wrapper-col="formItemLayout.wrapperCol">
               <a-form-item label="审核">
@@ -91,6 +93,7 @@
               </a-form-item>
             </a-form>
           </a-modal>
+        </template>
         </template>
       </a-table>
     </div>
@@ -115,16 +118,17 @@ import {DownOutlined, UpOutlined} from '@ant-design/icons-vue';
 import {getSchoolAudit, schoolAudit} from "@/api/designProjectAuditFlow";
 import {getMajor, getStudentType} from "@/api/topic.selection";
 
+let topicId=ref()
 //审核对话框
 const visible = ref<boolean>(false);
-const showModal = () => {
+const showModal = (record:any) => {
   visible.value = true;
+  topicId.value=record.id
 };
 
-const handleOk = async (record: any) => {
+const handleOk = async (record:any) => {
   visible.value = false;
-  visible.value = false;
-  modelRef.id = record.id
+  modelRef.id = topicId.value
   await schoolAudit(modelRef)
   let response = await getSchoolAudit(formState)
   data.value = response.data
@@ -133,9 +137,9 @@ const handleOk = async (record: any) => {
   let studentTypeResponse = await getStudentType();
   studentTypeInfo = studentTypeResponse.data
   data.value?.forEach(e => {
-    e.studentType = getNameByCode(e.studentType, studentTypeInfo)
+    e.studentType = getNameByCode(e.studentType as any, studentTypeInfo as any)
     e.major = getNameByCode(e.major, majorInfo)
-    e.key = e.id
+    // e.key = e.id
   })
 };
 
@@ -231,10 +235,8 @@ const columns = [
   },
   {
     title: "操作",
-    key: "操作",
-    dataIndex: "key",
-    align: "center",
-    slots: {customRender: "name"},//绑定插槽
+    key: "operation",
+    dataIndex: "operation",
   }
 ];
 let majorInfo = reactive({})

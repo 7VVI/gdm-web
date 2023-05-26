@@ -19,8 +19,8 @@ declare namespace API {
      * 后端权限类型
      */
     type Permissions={
-        value:number;
-        name:string;
+        value?:number;
+        name?:string;
     }
 
 
@@ -90,6 +90,9 @@ declare namespace API {
         children?: Router[]
     }
 
+    /**
+     * 注册类型
+     */
     type RegistryParam={
         checkPassword: string;
         email: string;
@@ -100,4 +103,26 @@ declare namespace API {
         username: string
     }
 
+    /**
+     * 用户信息
+     */
+    type User={
+        username?:string;
+        roles?:string;
+        name?:string;
+        gender?:number ;
+        sex?:string;
+        mobile?:string;
+        email?:string;
+        type?:number;
+        professional?:string;
+    }
+
+    /**
+     * 用户类型
+     */
+    type UserType={
+        code:number;
+        name:string;
+    }
 }

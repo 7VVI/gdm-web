@@ -46,6 +46,7 @@
       <a-table
           :columns="columns"
           :data-source="data"
+          :loading="loadding"
       >
         <template #bodyCell="{ column, text }">
           <template v-if="column.dataIndex === 'name'">{{ text.first }} {{ text.last }}</template>
@@ -72,12 +73,13 @@ import { computed } from 'vue';
 import axios from 'axios';
 import {getLogPageList} from "@/api/log";
 
-
+let loadding=ref(false)
 const onFinish = async (values: any) => {
+  loadding.value=true;
   let log=await getLogPageList(values);
   console.log(log);
   data.value=log.data
-
+  loadding.value=false;
 };
 let searchField=[
   {
@@ -110,9 +112,11 @@ let logRequestParam:API.LogQueryParam={
 let data = ref<API.LogData>();
 
 onMounted(async ()=>{
+  loadding.value=true
   let log=await getLogPageList(logRequestParam);
   console.log(log);
   data.value=log.data
+  loadding.value=false
 })
 
 const columns = [

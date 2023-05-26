@@ -112,7 +112,7 @@ const fileList = ref([]);
 onBeforeMount(async () => {
   let res = await currentProject()
   // project = res.data
-  Object.assign(project, res.data);
+ await Object.assign(project, res.data);
   console.log(project)
   if(project?.status===3){
     status.value=2

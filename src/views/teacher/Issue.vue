@@ -10,7 +10,7 @@
       >
         <a-row :gutter="24">
           <template v-for="i in 5" :key="i">
-            <template v-if="searchField[i].type=='input'">
+            <template v-if="searchField[i].type==='input'">
               <a-col v-show="expand || i <=3" :span="8">
                 <a-form-item
                     :name="searchField[i].field"
@@ -21,21 +21,21 @@
                 </a-form-item>
               </a-col>
             </template>
-           <template v-else-if="searchField[i].type=='major'">
-             <a-col v-show="expand || i <=3" :span="8">
-               <a-form-item
-                   :name="searchField[i].field"
-                   :label="searchField[i].title"
-                   :rules="[{ required: false, message: '请输入内容' }]"
-               >
-                 <a-select v-model:value="formState[searchField[i].field]" placeholder="请选择专业">
-                   <template v-for="item in majorInfo" :key="item.code">
-                     <a-select-option :value="item.code">{{ item.name }}</a-select-option>
-                   </template>
-                 </a-select>
-               </a-form-item>
-             </a-col>
-           </template>
+            <template v-else-if="searchField[i].type==='major'">
+              <a-col v-show="expand || i <=3" :span="8">
+                <a-form-item
+                    :name="searchField[i].field"
+                    :label="searchField[i].title"
+                    :rules="[{ required: false, message: '请输入内容' }]"
+                >
+                  <a-select v-model:value="formState[searchField[i].field]" placeholder="请选择专业">
+                    <template v-for="item in majorInfo" :key="item.code">
+                      <a-select-option :value="item.code">{{ item.name }}</a-select-option>
+                    </template>
+                  </a-select>
+                </a-form-item>
+              </a-col>
+            </template>
             <template v-else>
               <a-col v-show="expand || i <=3" :span="8">
                 <a-form-item
@@ -115,18 +115,18 @@
           :loading="loading"
       >
         <template #bodyCell="{ column ,text, record }">
-        <template v-if="['title', 'major', 'direction','student','studentNum'].includes(column.dataIndex)">
-          <div>
-            <a-input
-                v-if="editableData[record.key]"
-                v-model:value="editableData[record.key][column.dataIndex]"
-                style="margin: -5px 0"
-            />
-            <template v-else>
-              {{ text }}
-            </template>
-          </div>
-        </template>
+          <template v-if="['title', 'major', 'direction','student','studentNum'].includes(column.dataIndex)">
+            <div>
+              <a-input
+                  v-if="editableData[record.key]"
+                  v-model:value="editableData[record.key][column.dataIndex]"
+                  style="margin: -5px 0"
+              />
+              <template v-else>
+                {{ text }}
+              </template>
+            </div>
+          </template>
 
           <template v-if="column.key === 'operation'">
             <div class="editable-row-operations">
@@ -137,7 +137,9 @@
             </a-popconfirm>
           </span>
               <span v-else>
+                <template v-if="(record.departmentAuditResult!==1&&record.schoolAuditResult!==1)||record.schoolAuditResult==0">
             <a @click="edit(record.key)">修改</a>
+                  </template>
           </span>
             </div>
           </template>
@@ -155,7 +157,7 @@ import {DownOutlined, UpOutlined} from '@ant-design/icons-vue';
 import {toArray} from 'lodash-es';
 import {Form, message} from 'ant-design-vue';
 import Swal from 'sweetalert2';
-import { cloneDeep } from 'lodash-es';
+import {cloneDeep} from 'lodash-es';
 import {
   addTopicSelection,
   getMajor,
@@ -171,7 +173,7 @@ const formState = reactive({
   major: null,
   direction: null,
   studentType: null,
-  teacher:null
+  teacher: null
 });
 const useForm = Form.useForm;
 let modelRef = reactive({
@@ -213,48 +215,48 @@ const formItemLayout = {
   wrapperCol: {span: 14},
 };
 
-const auditStatus=["未审核","系已审核","院已审核","已被选题"]
+const auditStatus = ["未审核", "系已审核", "院已审核", "已被选题"]
 
-const onFinish =async (values: any) => {
- let topicSelectionResponse=await topicSelectionListAll(formState);
+const onFinish = async (values: any) => {
+  let topicSelectionResponse = await topicSelectionListAll(formState);
   data.value = topicSelectionResponse.data
   data.value?.forEach(e => {
     e.key = e.id;
     e.student = getNameByCode(e.studentType, studentTypeInfo as any)!;
     e.majorInfo = getNameByCode(e.major, majorInfo as any)!;
-    e.auditState=auditStatus[e.state];
+    e.auditState = auditStatus[e.state];
   })
 };
 const searchField = [
   {
     field: "",
     title: "",
-    type:"",
+    type: "",
   },
   {
     field: "title",
     title: "毕设题目",
-    type:"input",
+    type: "input",
   },
   {
     field: "teacher",
     title: "指导老师",
-    type:"input",
+    type: "input",
   },
   {
     field: "major",
     title: "适合专业",
-    type:"major",
+    type: "major",
   },
   {
     field: "studentType",
     title: "学生类型",
-    type:"studentType",
+    type: "studentType",
   },
   {
     field: "direction",
     title: "研究方向",
-    type:"input",
+    type: "input",
   }
 ]
 
@@ -309,14 +311,18 @@ const showModal = () => {
 const handleOk = async (e: MouseEvent) => {
   let res = await addTopicSelection(modelRef);
   visible.value = false;
-  modelRef =  {title: '', major: undefined, direction: '', studentNum: undefined, studentType: undefined}
+  modelRef.direction = '';
+  modelRef.title = '';
+  modelRef.studentType = undefined;
+  modelRef.studentNum = 1;
+  modelRef.major = undefined;
   let topicSelectionResponse = await topicSelectionListAll({})
   data.value = topicSelectionResponse.data as any
   data.value?.forEach(e => {
     e.key = e.id;
     e.student = getNameByCode(e.studentType, studentTypeInfo as any)!;
     e.majorInfo = getNameByCode(e.major, majorInfo as any)!;
-    e.auditState=auditStatus[e.state];
+    e.auditState = auditStatus[e.state];
   })
   // message.success("添加成功")
   // if(res.data==1){
@@ -370,21 +376,21 @@ interface DataType {
   studentType: number;
   student: string;
   studentNum: number;
-  state:number;
-  auditState:string,
-  result:string;
+  state: number;
+  auditState: string,
+  result: string;
 }
 
 const editableData: UnwrapRef<Record<string, DataType>> = reactive({});
 const edit = (key: string) => {
-  if(data.value!=null&&data.value.length>0){
+  if (data.value != null && data.value.length > 0) {
     editableData[key] = cloneDeep(data.value.filter(item => key === item.key)[0]);
   }
 };
 const save = async (key: string) => {
-  if(data.value!=null&&data.value.length>0) {
+  if (data.value != null && data.value.length > 0) {
     Object.assign(data.value.filter(item => key === item.key)[0], editableData[key]);
-  await  updateTopic(editableData[key]);
+    await updateTopic(editableData[key]);
     delete editableData[key];
   }
 };
@@ -408,7 +414,7 @@ onMounted(async () => {
     e.key = e.id;
     e.student = getNameByCode(e.studentType, studentTypeInfo as any)!;
     e.majorInfo = getNameByCode(e.major, majorInfo as any)!;
-    e.auditState=auditStatus[e.state];
+    e.auditState = auditStatus[e.state];
   })
   loading.value = false;
 })

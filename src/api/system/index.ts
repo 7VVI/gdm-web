@@ -107,12 +107,35 @@ const HttpManager = {
         })
     },
 
+    /**
+     * 文件下载
+     * @param accountId
+     */
     downloadFile(accountId:string){
         return request({
             url: "/fileManage/download",
             method: "get",
             params:{accountId},
             responseType: 'blob'
+        })
+    },
+
+    /**
+     * 查询所有账号
+     * @param data
+     */
+    getAccount(data: any) {
+        return request<BaseResponse<any>>({
+            url: "/user/listAll",
+            method: "post",
+            data
+        })
+    },
+
+    getUserType(){
+        return request<BaseResponse<any>>({
+            url: "/user/type",
+            method: "get",
         })
     },
 
