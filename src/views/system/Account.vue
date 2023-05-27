@@ -10,8 +10,8 @@
             @finish="onFinish"
         >
           <a-row :gutter="24">
-            <template v-for="i in 4" :key="i">
-              <a-col v-show="expand || i <=3" :span="8">
+            <template v-for="i in 2" :key="i">
+              <a-col v-show="expand || i <=2" :span="8">
                 <a-form-item
                     :name="searchField[i].field"
                     :label="searchField[i].title"
@@ -26,17 +26,6 @@
             <a-col :span="24" style="text-align: right">
               <a-button type="primary" html-type="submit">查询</a-button>
               <a-button style="margin: 0 8px" @click="() => formRef.resetFields()">清空</a-button>
-              <a style="font-size: 12px" @click="expand = !expand">
-                <template v-if="expand">
-                  <UpOutlined/>
-                  收起
-                </template>
-                <template v-else>
-                  <DownOutlined/>
-                  展开
-                </template>
-
-              </a>
             </a-col>
           </a-row>
         </a-form>
@@ -46,6 +35,7 @@
       <a-table
           :columns="columns"
           :data-source="data"
+          :loading="loadding"
       >
         <template #bodyCell="{ column, text, record }">
           <template v-if="column.key === 'operation'">
@@ -63,56 +53,48 @@
               >
                 <template #extra>
                   <a-button style="margin-right: 8px" @click="onClose">取消</a-button>
-                  <a-button type="primary" @click="onClose">确认</a-button>
+                  <a-button type="primary" @click="onOk">确认</a-button>
                 </template>
-                <a-form
-                    :model="formStates"
-                    v-bind="layout"
-                    name="nest-messages"
-                    :validate-messages="validateMessages"
-                    @finish="onFinishs"
-                >
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">账号:</span>
-                    <a-mentions style="flex: 1" :placeholder="userInfo.username" readonly/>
-                  </div>
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">姓名:</span>
-                    <a-mentions style="flex: 1" :placeholder="userInfo.name" readonly/>
-                  </div>
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">性别:</span>
-                    <a-mentions style="flex: 1" :placeholder="userInfo.gender===0?'男':'女'" readonly/>
-                  </div>
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">手机:</span>
-                    <a-mentions style="flex: 1" :placeholder="userInfo.mobile" readonly/>
-                  </div>
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">邮箱:</span>
-                    <a-mentions style="flex: 1" :placeholder="userInfo.email" readonly/>
-                  </div>
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">类型:</span>
-                    <a-mentions style="flex: 1" :placeholder="userInfo.type" readonly/>
-                  </div>
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">职称:</span>
-                    <a-mentions style="flex: 1" :placeholder="userInfo.professional" readonly/>
-                  </div>
-                  <div style="display: flex;margin-bottom: 10px">
-                    <span style="padding-right: 10px">权限:</span>
-                    <a-select
-                        v-model:value="names[userInfo.roles]"
-                        mode="multiple"
-                        style="width: 100%"
-                        :allowClear="true"
-                        placeholder="请选择"
-                        :options="[...names.map((_, i) => ({ value:_ }))]"
-                        @change="handleChange"
-                    ></a-select>
-                  </div>
-                </a-form>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">账号:</span>
+                  <a-mentions style="flex: 1" :placeholder="userInfo.username" readonly/>
+                </div>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">姓名:</span>
+                  <a-mentions style="flex: 1" :placeholder="userInfo.name" readonly/>
+                </div>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">性别:</span>
+                  <a-mentions style="flex: 1" :placeholder="userInfo.gender===0?'男':'女'" readonly/>
+                </div>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">手机:</span>
+                  <a-mentions style="flex: 1" :placeholder="userInfo.mobile" readonly/>
+                </div>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">邮箱:</span>
+                  <a-mentions style="flex: 1" :placeholder="userInfo.email" readonly/>
+                </div>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">类型:</span>
+                  <a-mentions style="flex: 1" :placeholder="userInfo.type" readonly/>
+                </div>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">职称:</span>
+                  <a-mentions style="flex: 1" :placeholder="userInfo.professional" readonly/>
+                </div>
+                <div style="display: flex;margin-bottom: 10px">
+                  <span style="padding-right: 10px">权限:</span>
+                  <a-select
+                      v-model:value="userInfo.permissions"
+                      mode="multiple"
+                      style="width: 100%"
+                      :allowClear="true"
+                      placeholder="请选择"
+                      :options="[...names.map((_, i) => ({ value:_ }))]"
+                      @change="handleChange"
+                  ></a-select>
+                </div>
               </a-drawer>
             </template>
           </template>
@@ -146,6 +128,7 @@ const layout = {
   wrapperCol: {span: 16},
 };
 
+let loadding = ref(false)
 
 const handleChange = (value: string[]) => {
   console.log(`selected ${value}`);
@@ -153,45 +136,72 @@ const handleChange = (value: string[]) => {
 
 let userInfo = reactive<User>({});
 
-const validateMessages = {
-  required: '${label} is required!',
-  types: {
-    email: '${label} is not a valid email!',
-    number: '${label} is not a valid number!',
-  },
-  number: {
-    range: '${label} must be between ${min} and ${max}',
-  },
-};
-
-const formStates = reactive({
-  user: {
-    name: '',
-    age: undefined,
-    email: '',
-    website: '',
-    introduction: '',
-  },
-});
-const onFinishs = (values: any) => {
-  console.log('Success:', values);
-};
 
 const placement = ref<DrawerProps['placement']>('left');
 const visible = ref<boolean>(false);
-
+let cacheUserId = ref()
 const showDrawer = (record: any) => {
   visible.value = true;
   console.log(record)
+  cacheUserId = record.id
   Object.assign(userInfo, record)
 };
 
 const onClose = () => {
   visible.value = false;
 };
+const onOk = async () => {
+  loadding.value = true
+  let permission: any = [];
+  console.log("确认", userInfo)
+  userInfo.permissions?.forEach(role => {
+    let roles = getValueByName(role);
+    if (roles != null) {
+      permission.push(roles);
+    }
+  })
+  await HttpManager.updateUser({id: cacheUserId, roles: permission.join(",")})
+  let account = await HttpManager.getAccount(values);
+  data.value = account.data;
+  data.value?.forEach(info => {
+    info.sex = info.gender == 0 ? '男' : '女'
+    info.roles.split(",").forEach(role => {
+      let p = getNameByValue(Number(role))
+      if (info.permissions == null || info.permissions.length <= 0) {
+        if (p != null) {
+          info.permissions = [p]
+        }
+      } else {
+        if (p != null) {
+          info.permissions.push(p)
+        }
+      }
+    })
+  })
+  visible.value = false;
+  loadding.value = false
+};
 
 const onFinish = async (values: any) => {
-  console.log("查询")
+  loadding.value = true
+  let account = await HttpManager.getAccount(values);
+  data.value = account.data;
+  data.value?.forEach(info => {
+    info.sex = info.gender == 0 ? '男' : '女'
+    info.roles.split(",").forEach(role => {
+      let p = getNameByValue(Number(role))
+      if (info.permissions == null || info.permissions.length <= 0) {
+        if (p != null) {
+          info.permissions = [p]
+        }
+      } else {
+        if (p != null) {
+          info.permissions.push(p)
+        }
+      }
+    })
+  })
+  loadding.value = false
 };
 let searchField = [
   {
@@ -209,10 +219,6 @@ let searchField = [
   {
     field: "type",
     title: "用户类型"
-  },
-  {
-    field: "professional",
-    title: "职称"
   }
 ]
 
@@ -229,34 +235,60 @@ interface DataType {
   email: string;
   type: string;
   professional: string;
+  permissions: string[];
 }
+
+function getValueByName(name: string): number | undefined {
+  const permission = roles.find(p => p.name === name);
+  return permission?.value;
+}
+
+function getNameByValue(value: number): string | undefined {
+  const permission = roles.find(p => p.value === value);
+  return permission?.name;
+}
+
 
 let roles = reactive<API.Permissions[]>([]);
 //保存用户类型
 let userTypeInfos = reactive({})
 //表格数据源
 let data = ref<DataType[]>();
-let values=ref()
-const names=ref()
+let values = ref()
+let names=ref()
 onMounted(async () => {
-  let log = await HttpManager.getAccount({});
-  console.log(log);
-  data.value = log.data;
-  data.value?.forEach(info => {
-    info.sex = info.gender == 0 ? '男' : '女'
-  })
+  loadding.value = true
   let userTypeInfo = await HttpManager.getUserType()
   Object.assign(userTypeInfos, userTypeInfo.data)
   //查询所有权限
   let permissions = await HttpManager.getPermissions()
   Object.assign(roles, permissions.data)
-  values.value = roles.map(function(item) {
+  values.value = roles.map(function (item) {
     return item.value;
   });
 
-  names.value = roles.map(function(item) {
+  names.value = roles.map(function (item) {
     return item.name;
   });
+
+  let account = await HttpManager.getAccount({});
+  data.value = account.data;
+  data.value?.forEach(info => {
+    info.sex = info.gender == 0 ? '男' : '女'
+    info.roles.split(",").forEach(role => {
+      let p = getNameByValue(Number(role))
+      if (info.permissions == null || info.permissions.length <= 0) {
+        if (p != null) {
+          info.permissions = [p]
+        }
+      } else {
+        if (p != null) {
+          info.permissions.push(p)
+        }
+      }
+    })
+  })
+  loadding.value = false
 
 })
 

@@ -139,6 +139,13 @@ const HttpManager = {
         })
     },
 
+    updateUser(data: any) {
+        return request<BaseResponse<any>>({
+            url: "/user/update",
+            method: "post",
+            data
+        })
+    },
 }
 
 export {HttpManager}

@@ -116,6 +116,7 @@ declare namespace API {
         email?:string;
         type?:number;
         professional?:string;
+        permissions?:string[];
     }
 
     /**

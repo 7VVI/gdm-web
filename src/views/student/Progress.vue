@@ -62,7 +62,7 @@
     <div class="steps-action">
       <a-button v-if="status < steps.length - 1" type="primary" @click="next">选择进度</a-button>
       <a-button
-          v-if="status == steps.length - 1"
+          v-if="status === steps.length - 1"
           type="primary"
       >
         结束
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive, onBeforeMount} from "vue";
+import {ref, reactive, onBeforeMount, onMounted} from "vue";
 import {currentProject, statusUpdate} from "@/api/project";
 
 import type {UploadChangeParam} from 'ant-design-vue';
@@ -109,11 +109,11 @@ const handleDrop = (e: DragEvent) => {
 
 const fileList = ref([]);
 
-onBeforeMount(async () => {
+onMounted(async () => {
   let res = await currentProject()
   // project = res.data
  await Object.assign(project, res.data);
-  console.log(project)
+  console.log("状态",status.value)
   if(project?.status===3){
     status.value=2
   }else{
