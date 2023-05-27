@@ -57,7 +57,7 @@
       <a-step v-for="item in steps" :key="item.title" :title="item.title"/>
     </a-steps>
     <div class="steps-content">
-      {{ steps[status].content }}
+      {{ steps[stateCache].content }}
     </div>
     <div class="steps-action">
       <a-button v-if="status < steps.length - 1" type="primary" @click="next">选择进度</a-button>
@@ -106,6 +106,7 @@ const handleChange = (info: UploadChangeParam) => {
 const handleDrop = (e: DragEvent) => {
   console.log(e);
 }
+let stateCache=ref(1);
 
 const fileList = ref([]);
 
@@ -113,12 +114,12 @@ onMounted(async () => {
   let res = await currentProject()
   // project = res.data
  await Object.assign(project, res.data);
-  console.log("状态",status.value)
   if(project?.status===3){
     status.value=2
   }else{
     status.value = project.status;
   }
+  stateCache.value= project.status;
 })
 
 
